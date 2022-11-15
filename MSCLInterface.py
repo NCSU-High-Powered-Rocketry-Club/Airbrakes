@@ -1,54 +1,56 @@
+from io import TextIOWrapper
 import mscl
-import asyncio
-import collections.deque
+import threading
+from collections import deque
 
 class MSCLInterface:
-    def __init__ ( self, port, logfile ):
+    def __init__ ( self, port, logfile: TextIOWrapper ):
         self.connection = mscl.Connection.Serial(port)
         self.node = mscl.InertialNode(self.connection)
         self.logfile = logfile
         self.databuffer = deque()
-
         self.running = False
 
-    def stopLoggingLoop():
+    def stopLoggingLoop(self):
         self.running = False
+        self.loggingThread.join()
+        self.logfile.close()
 
-    async def startLoggingLoop():
+    def startLoggingLoopThread(self):
+        self.loggingThread = threading.Thread(target=self.startLoggingLoop)
+        self.loggingThread.start()
+
+    def startLoggingLoop(self):
         self.running = True
+        n = 0
         while self.running:
             # get all the data packets from the node, with a timeout of 10 (or whatever is below) milliseconds
-            packets = node.getDataPackets(50)
+            packets = self.node.getDataPackets(50)
+            # get the channel headers
             if n<10:
                 for packet in packets:
-                    # iterate over all the data points in the packet
                     for dataPoint in packet.data():
-                        # print out the channel data
-                        # Note: The as_string() function is being used here for simplicity.
-                        #      Other methods (ie. as_float, as_uint16, as_Vector) are also available.
-                        #      To determine the format that a dataPoint is stored in, use dataPoint.storedAs().
-                        print(dataPoint.channelName())
-                        file.write(str(dataPoint.channelName()) + ",")
-                    file.write("\n")
+                        self.logfile.write(str(dataPoint.channelName()) + ",")
+                    self.logfile.write("\n")
                     n += 1
             else:
                 for packet in packets:
                     # iterate over all the data points in the packet
                     dataObject = {}
                     for dataPoint in packet.data():
-                        # print out the channel data
-                        #print(dataPoint.channelName() + ":", dataPoint.as_string())
-                        if dataPoint.channelName() == "estPressureAlt":
-                            dataObject["altitude"] = dataPoint.as_float()
+                        # get the channel data
+                        if dataPoint.channelName() == "estLinearAccelZ":
+                            dataObject["accel"] = dataPoint.as_float()
                             dataObject["timestamp"] = packet.collectedTimestamp().nanoseconds()
+                            
                         if dataObject != {}:
-                            dataBuffer.append(dataObject)
+                            self.databuffer.append(dataObject)
 
-                        file.write(str(dataPoint.as_float())+",")
-                    file.write("\n")
+                        self.logfile.write(str(dataPoint.as_float())+",")
+                    self.logfile.write("\n")
 
-    def popDataPoint():
+    def popDataPoint(self):
         try:
-            return self.databuffer.popLeft()
-        except IndexError():
+            return self.databuffer.popleft()
+        except IndexError as e:
             return None
