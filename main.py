@@ -4,6 +4,9 @@ import os
 LAUNCH_TO_TEST_TIME = 5
 TEST_LENGTH_TIME = 5
 
+SERVO_OFF_ANGLE = 0
+SERVO_ON_ANGLE = 90
+
 # https://raspberrypi.stackexchange.com/questions/5100/detect-that-a-python-program-is-running-on-the-pi
 # TODO: Make sure this works on pi
 def is_raspberrypi():
@@ -46,16 +49,29 @@ class StateMachine:
         print(f"Transitioning to state {new_state.__name__}")
         self.state = self.create_state(new_state)
 
+LAUNCH_AVERAGE_SIZE = 10    
 class StandbyState:
     def __init__(self, old_state):
-        set_servo(0)
+        set_servo(SERVO_OFF_ANGLE)
+
+        self.index = 0
+        self.accelerations = [0] * LAUNCH_AVERAGE_SIZE
         return
 
     def process(self, state_machine: StateMachine, data_point):
+        # Get the acceleration
         accel = data_point['accel']
-        if accel > 10:
+
+        # Add it to the spot in the array, so that we can
+        # calculate the rolling average
+        self.accelerations[self.index] = accel
+        # Move the index to the next spot, wrapping around
+        self.index = (self.index + 1) % LAUNCH_AVERAGE_SIZE
+
+        average_acceleration = sum(self.accelerations) / LAUNCH_AVERAGE_SIZE 
+        if average_acceleration > 10:
             print("LIFTOFF")
-            print(f"Acceleration is {accel}")
+            print(f"Acceleration is {average_acceleration}")
             state_machine.to_state(LiftoffState)
 
 class LiftoffState:
@@ -74,7 +90,7 @@ class LiftoffState:
 
 class TestState:
     def __init__(self, old_state):
-        set_servo(90)
+        set_servo(SERVO_ON_ANGLE)
         self.start_time = time.time()
         return
 
@@ -88,7 +104,7 @@ class TestState:
 
 class FreefallState:
     def __init__(self, old_state):
-        set_servo(0)
+        set_servo(SERVO_OFF_ANGLE)
         return
 
     def process(self, state_machine: StateMachine, data_point):
