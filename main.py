@@ -3,9 +3,28 @@ import asyncio
 
 interface = MSCLInterface("/dev/ttyACM0", open("./logs/LORDlog.csv", "w"))
 
+from enum import Enum
+
+class State(Enum):
+    STANDBY = 1
+    LIFTOFF = 2
+
+state = State.STANDBY
+
+def process_standby_state(dataPoint):
+    global state
+    if dataPoint['accel'] > 10:
+        print("LIFTOFF")
+        state = State.LIFTOFF
+        print(state)
+
+def process_liftoff_state(dataPoint):
+    # print("weee")
+    return
+
 def main():
+    global state
     interface.startLoggingLoopThread()
-    liftOffDetected = False
 
     print("started logging loop")
 
@@ -13,9 +32,11 @@ def main():
         try:
             dataPoint = interface.popDataPoint()
             if dataPoint is not None:
-                if dataPoint['accel'] > 10 and not liftOffDetected:
-                    print("LIFTOFF")
-                    liftOffDetected = True
+                if state == State.STANDBY:
+                    process_standby_state(dataPoint)
+                elif state == State.LIFTOFF:
+                    process_liftoff_state(dataPoint)
+
         except KeyboardInterrupt:
             break
 
