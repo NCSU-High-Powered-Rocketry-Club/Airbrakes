@@ -2,6 +2,7 @@
 import sys
 import mscl
 from numpy import array
+import asyncio
 
 file = open("./logs/LORDlog.csv", "w")
 dataBuffer = []
