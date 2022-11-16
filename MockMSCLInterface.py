@@ -8,14 +8,14 @@ class MockMSCLInterface:
     def pop_data_point(self):
         self.iter += 1
         import time
-        time.sleep(0.1)
-        if (self.iter < 10):
+        time.sleep(0.001)
+        if (self.iter < 100):
             return {
-                'accel': -9.8
+                'accel': 0
             }
         else:
             return {
-                'accel': -15
+                'accel': -8
             }
 
     def stop_logging_loop(self):

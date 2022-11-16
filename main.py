@@ -9,11 +9,15 @@ import time
 
 from StateMachine import StateMachine
 
-LAUNCH_TO_TEST_TIME = 5 # Time from liftoff detected to test start
-TEST_LENGTH_TIME = 5 # Length of the test
+LAUNCH_TO_TEST_TIME = 10 # Time from liftoff detected to test start
+TEST_LENGTH_TIME = 10 # Length of the test
 
+# TODO: Configure these to the appropriate values
 SERVO_OFF_ANGLE = 0
 SERVO_ON_ANGLE = 90
+
+# TODO: Make sure this is the right pin
+SERVO_PIN = 32
 
 # https://raspberrypi.stackexchange.com/questions/5100/detect-that-a-python-program-is-running-on-the-pi
 def is_raspberrypi():
@@ -113,7 +117,7 @@ class FreefallState:
     def process(self, state_machine: StateMachine, data_point):
         return
 
-# TODO: There's a better way to do this, but this has been tested and works
+# TODO (After launch): There's a better way to do this, but this has been tested and works
 servo: Servo
 def set_degrees(deg):
     global servo
@@ -126,7 +130,7 @@ def main():
 
     global servo
     # Numbers from trial and error
-    servo = Servo(32, 3.5, 11.5)
+    servo = Servo(SERVO_PIN, 3.5, 11.5)
 
     state_machine = StateMachine(StandbyState)
 
