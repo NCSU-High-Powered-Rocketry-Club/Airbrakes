@@ -49,13 +49,17 @@ class StateMachine:
         print(f"Transitioning to state {new_state.__name__}")
         self.state = self.create_state(new_state)
 
-LAUNCH_AVERAGE_SIZE = 10    
 class StandbyState:
+    AVERAGE_COUNT = 10
+    # require an acceleration of 3m/s^2
+    # TODO: Make sure IMU units are in metric, pretty sure they are
+    ACCELERATION_REQUIREMENT = 9.8 + 3
+
     def __init__(self, old_state):
         set_servo(SERVO_OFF_ANGLE)
 
         self.index = 0
-        self.accelerations = [0] * LAUNCH_AVERAGE_SIZE
+        self.accelerations = [0] * StandbyState.AVERAGE_COUNT
         return
 
     def process(self, state_machine: StateMachine, data_point):
@@ -66,10 +70,19 @@ class StandbyState:
         # calculate the rolling average
         self.accelerations[self.index] = accel
         # Move the index to the next spot, wrapping around
-        self.index = (self.index + 1) % LAUNCH_AVERAGE_SIZE
+        self.index = (self.index + 1) % StandbyState.AVERAGE_COUNT
 
-        average_acceleration = sum(self.accelerations) / LAUNCH_AVERAGE_SIZE 
-        if average_acceleration > 10:
+        # print(self.accelerations)
+
+        average_acceleration = sum(self.accelerations) / StandbyState.AVERAGE_COUNT 
+        
+        # We have to use the absolute value of acceleration here because
+        # the actual acceleration will be a large negative number.
+        # If you were standing on the IMU, you would feel heavier when
+        # liftoff happens, so acceleration goes from -9.8 -> -15 (or some number).
+        # Really, it should be `average_acceleration <= StandbyState.ACCELERATION_REQUIREMENT`
+        # where the requirement is also negative, but this way works for both cases
+        if abs(average_acceleration) >= StandbyState.ACCELERATION_REQUIREMENT:
             print("LIFTOFF")
             print(f"Acceleration is {average_acceleration}")
             state_machine.to_state(LiftoffState)
