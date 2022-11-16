@@ -111,7 +111,7 @@ class FreefallState:
         return
 
 def main():
-    interface.startLoggingLoopThread()
+    interface.start_logging_loop_thread()
 
     print("started logging loop")
 
@@ -119,14 +119,14 @@ def main():
 
     while True:
         try:
-            data_point = interface.popDataPoint()
+            data_point = interface.pop_data_point()
             if data_point is not None:
                 state_machine.process_data_point(data_point)
 
         except KeyboardInterrupt:
             break
 
-    interface.stopLoggingLoop()
+    interface.stop_logging_loop()
 
 if __name__ == "__main__":
     main()
