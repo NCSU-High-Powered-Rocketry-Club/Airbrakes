@@ -1,5 +1,13 @@
+# main.py is a state machine that controls the flight of the rocket
+# The flight consists of 4 sections
+# 1. Standby: While the rocket is on the ground, detects launch
+# 2. Liftoff: Starts when the rocket takes off, starts a timer to begin testing
+# 3. Test: Does the testing of the airbrakes
+# 4. Freefall: After the test, resets the rocket
+
 import time
-import os
+
+from StateMachine import StateMachine
 
 LAUNCH_TO_TEST_TIME = 5
 TEST_LENGTH_TIME = 5
@@ -18,7 +26,9 @@ def is_raspberrypi():
     except Exception: pass
     return False
 
-# Set up mocking if we aren't running this on a pi
+# Set up mocking to allow us to test code even if we aren't running on a pi
+# This feeds fake data to the flight software when we don't have
+# IMU, servos, etc connected
 if is_raspberrypi():
     # We are running on a pi
     from MSCLInterface import MSCLInterface
@@ -34,21 +44,6 @@ else:
     def set_servo(deg):
         print(f"Setting servo to {deg}")
 
-class StateMachine:
-    def __init__(self, state):
-        self.state = None
-        self.to_state(state)
-
-    def create_state(self, state):
-        return state(self.state)
-
-    def process_data_point(self, data_point):
-        self.state.process(self, data_point)
-
-    def to_state(self, new_state):
-        print(f"Transitioning to state {new_state.__name__}")
-        self.state = self.create_state(new_state)
-
 class StandbyState:
     AVERAGE_COUNT = 10
     # require an acceleration of 3m/s^2
@@ -58,6 +53,10 @@ class StandbyState:
     def __init__(self, old_state):
         set_servo(SERVO_OFF_ANGLE)
 
+        # We create an array to store the last n accelerations
+        # in order to find the moving average.
+        # We store an index to replace a different value in the array
+        # every time, looping back at the end
         self.index = 0
         self.accelerations = [0] * StandbyState.AVERAGE_COUNT
         return
@@ -94,31 +93,24 @@ class LiftoffState:
     def process(self, state_machine: StateMachine, data_point):
         current_time = time.time()
 
+        # print(f"time to go {LAUNCH_TO_TEST_TIME - (current_time - self.start_time)}")
         if current_time - self.start_time > LAUNCH_TO_TEST_TIME:
             state_machine.to_state(TestState)
-            return
-
-        # print(f"time to go {LAUNCH_TO_TEST_TIME - (current_time - self.start_time)}")
-        return
 
 class TestState:
     def __init__(self, old_state):
         set_servo(SERVO_ON_ANGLE)
         self.start_time = time.time()
-        return
 
     def process(self, state_machine: StateMachine, data_point):
         current_time = time.time()
 
         if current_time - self.start_time > TEST_LENGTH_TIME:
             state_machine.to_state(FreefallState)
-            return
-        return
 
 class FreefallState:
     def __init__(self, old_state):
         set_servo(SERVO_OFF_ANGLE)
-        return
 
     def process(self, state_machine: StateMachine, data_point):
         return
