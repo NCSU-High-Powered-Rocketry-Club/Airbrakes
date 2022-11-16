@@ -2,10 +2,10 @@ class MockMSCLInterface:
     def __init__(self):
         self.iter = 0
     
-    def startLoggingLoopThread(self):
+    def start_logging_loop_thread(self):
         return
     
-    def popDataPoint(self):
+    def pop_data_point(self):
         self.iter += 1
         import time
         time.sleep(0.1)
@@ -15,8 +15,8 @@ class MockMSCLInterface:
             }
         else:
             return {
-                'accel': 12
+                'accel': -15
             }
 
-    def stopLoggingLoop(self):
+    def stop_logging_loop(self):
         return
