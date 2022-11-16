@@ -9,14 +9,13 @@ import time
 
 from StateMachine import StateMachine
 
-LAUNCH_TO_TEST_TIME = 5
-TEST_LENGTH_TIME = 5
+LAUNCH_TO_TEST_TIME = 5 # Time from liftoff detected to test start
+TEST_LENGTH_TIME = 5 # Length of the test
 
 SERVO_OFF_ANGLE = 0
 SERVO_ON_ANGLE = 90
 
 # https://raspberrypi.stackexchange.com/questions/5100/detect-that-a-python-program-is-running-on-the-pi
-# TODO: Make sure this works on pi
 def is_raspberrypi():
     import io
 
@@ -34,24 +33,22 @@ if is_raspberrypi():
     from MSCLInterface import MSCLInterface
     interface = MSCLInterface("/dev/ttyACM0", open("./logs/LORDlog.csv", "w"))
 
-    from ServoController import set_servo
+    from Servo import Servo
 else:
     # We are not running on a pi, mock the IMU
     from MockMSCLInterface import MockMSCLInterface
     interface = MockMSCLInterface()
 
-    # Mock the set_servo function
-    def set_servo(deg):
-        print(f"Setting servo to {deg}")
+    # Mock the servo
+    from MockServo import Servo
 
 class StandbyState:
-    AVERAGE_COUNT = 10
-    # require an acceleration of 3m/s^2
-    # TODO: Make sure IMU units are in metric, pretty sure they are
-    ACCELERATION_REQUIREMENT = 9.8 + 3
+    AVERAGE_COUNT = 250
+    # require an acceleration of 5m/s^2
+    ACCELERATION_REQUIREMENT = 5
 
     def __init__(self, old_state):
-        set_servo(SERVO_OFF_ANGLE)
+        set_degrees(SERVO_OFF_ANGLE)
 
         # We create an array to store the last n accelerations
         # in order to find the moving average.
@@ -84,6 +81,7 @@ class StandbyState:
         if abs(average_acceleration) >= StandbyState.ACCELERATION_REQUIREMENT:
             print("LIFTOFF")
             print(f"Acceleration is {average_acceleration}")
+            print(f"Average acceleration is {self.accelerations}")
             state_machine.to_state(LiftoffState)
 
 class LiftoffState:
@@ -99,7 +97,7 @@ class LiftoffState:
 
 class TestState:
     def __init__(self, old_state):
-        set_servo(SERVO_ON_ANGLE)
+        set_degrees(SERVO_ON_ANGLE)
         self.start_time = time.time()
 
     def process(self, state_machine: StateMachine, data_point):
@@ -110,15 +108,25 @@ class TestState:
 
 class FreefallState:
     def __init__(self, old_state):
-        set_servo(SERVO_OFF_ANGLE)
+        set_degrees(SERVO_OFF_ANGLE)
 
     def process(self, state_machine: StateMachine, data_point):
         return
+
+# TODO: There's a better way to do this, but this has been tested and works
+servo: Servo
+def set_degrees(deg):
+    global servo
+    servo.set_degrees(deg)
 
 def main():
     interface.start_logging_loop_thread()
 
     print("started logging loop")
+
+    global servo
+    # Numbers from trial and error
+    servo = Servo(32, 3.5, 11.5)
 
     state_machine = StateMachine(StandbyState)
 

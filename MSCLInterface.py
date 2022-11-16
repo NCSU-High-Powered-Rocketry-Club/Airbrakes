@@ -16,7 +16,7 @@ class MSCLInterface:
         self.databuffer = deque()
         self.running = False
         # rate in which we poll date  in miliseconds (1/(Hz)*1000)
-        self.polling_rate = 1/(100)*1000
+        self.polling_rate = int(1/(100)*1000)
 
 
     def stop_logging_loop(self):
