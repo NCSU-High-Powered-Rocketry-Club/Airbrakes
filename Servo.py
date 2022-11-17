@@ -34,4 +34,5 @@ class Servo:
         return ((deg * (self.servoMaxDuty - self.servoMinDuty)) / 180) + self.servoMinDuty
 
     def set_degrees(self, deg):
+        print(f"Set servo angle {deg}")
         self.pi_pwm.ChangeDutyCycle(self.degrees_to_pos(deg))

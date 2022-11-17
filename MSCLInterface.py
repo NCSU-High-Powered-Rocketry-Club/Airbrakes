@@ -3,6 +3,9 @@ import threading
 from collections import deque
 import mscl
 
+# TOOD (Before every launch): Make sure this value is correct
+UPSIDE_DOWN = True
+
 class MSCLInterface:
     """
     Thie MSCL interface is used to interact with the data collected by the
@@ -80,7 +83,10 @@ class MSCLInterface:
 
             # get the channel data
             if data_point.channelName() == "estLinearAccelZ":
-                data_object["accel"] = data_point.as_float()
+                accel = data_point.as_float()
+                if UPSIDE_DOWN:
+                    accel = -accel
+                data_object["accel"] = accel
                 data_object["timestamp"] = packet.collectedTimestamp().nanoseconds()
 
             # if the data object is not empty
