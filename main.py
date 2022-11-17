@@ -13,7 +13,7 @@ LAUNCH_TO_TEST_TIME = 10 # Time from liftoff detected to test start
 TEST_LENGTH_TIME = 10 # Length of the test
 
 # TODO: Configure these to the appropriate values
-SERVO_OFF_ANGLE = 0
+SERVO_OFF_ANGLE = 90
 SERVO_ON_ANGLE = 90
 
 # TODO: Make sure this is the right pin
@@ -52,7 +52,7 @@ class StandbyState:
     ACCELERATION_REQUIREMENT = 5
 
     def __init__(self, old_state):
-        set_degrees(SERVO_OFF_ANGLE)
+        #set_degrees(SERVO_OFF_ANGLE)
 
         # We create an array to store the last n accelerations
         # in order to find the moving average.
@@ -131,6 +131,8 @@ def main():
     global servo
     # Numbers from trial and error
     servo = Servo(SERVO_PIN, 3.5, 11.5)
+
+    servo.set_degrees(180)
 
     state_machine = StateMachine(StandbyState)
 
