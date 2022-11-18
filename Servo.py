@@ -35,4 +35,5 @@ class Servo:
 
     def set_degrees(self, deg):
         print(f"Set servo angle {deg}")
+        print(self.degrees_to_pos(deg))
         self.pi_pwm.ChangeDutyCycle(self.degrees_to_pos(deg))

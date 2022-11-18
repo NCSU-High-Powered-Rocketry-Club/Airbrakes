@@ -9,12 +9,12 @@ import time
 
 from StateMachine import StateMachine
 
-LAUNCH_TO_TEST_TIME = 10 # Time from liftoff detected to test start
-TEST_LENGTH_TIME = 10 # Length of the test
+LAUNCH_TO_TEST_TIME = 5 # Time from liftoff detected to test start
+TEST_LENGTH_TIME = 4 # Length of the test
 
 # TODO: Configure these to the appropriate values
-SERVO_OFF_ANGLE = 90
-SERVO_ON_ANGLE = 90
+SERVO_OFF_ANGLE = 120
+SERVO_ON_ANGLE = 45
 
 # TODO: Make sure this is the right pin
 SERVO_PIN = 32
@@ -52,7 +52,7 @@ class StandbyState:
     ACCELERATION_REQUIREMENT = 5
 
     def __init__(self, old_state):
-        #set_degrees(SERVO_OFF_ANGLE)
+        set_degrees(SERVO_OFF_ANGLE)
 
         # We create an array to store the last n accelerations
         # in order to find the moving average.
@@ -132,7 +132,7 @@ def main():
     # Numbers from trial and error
     servo = Servo(SERVO_PIN, 3.5, 11.5)
 
-    servo.set_degrees(180)
+    #servo.set_degrees(45)
 
     state_machine = StateMachine(StandbyState)
 
