@@ -12,12 +12,13 @@ from StateMachine import StateMachine
 LAUNCH_TO_TEST_TIME = 5 # Time from liftoff detected to test start
 TEST_LENGTH_TIME = 4 # Length of the test
 
-# TODO: Configure these to the appropriate values
+# these angles represent open and closed for the airbrakes, they are arbitrary
 SERVO_OFF_ANGLE = 120
 SERVO_ON_ANGLE = 45
 
-# TODO: Make sure this is the right pin
+# this is the pin that the servo's data wire is plugged into
 SERVO_PIN = 32
+
 
 # https://raspberrypi.stackexchange.com/questions/5100/detect-that-a-python-program-is-running-on-the-pi
 def is_raspberrypi():
@@ -46,6 +47,7 @@ else:
     # Mock the servo
     from MockServo import Servo
 
+
 class StandbyState:
     AVERAGE_COUNT = 250
     # require an acceleration of 5m/s^2
@@ -61,6 +63,7 @@ class StandbyState:
         self.index = 0
         self.accelerations = [0] * StandbyState.AVERAGE_COUNT
         return
+
 
     def process(self, state_machine: StateMachine, data_point):
         # Get the acceleration
@@ -88,6 +91,7 @@ class StandbyState:
             print(f"Average acceleration is {self.accelerations}")
             state_machine.to_state(LiftoffState)
 
+
 class LiftoffState:
     def __init__(self, old_state):
         self.start_time = time.time()
@@ -98,6 +102,7 @@ class LiftoffState:
         # print(f"time to go {LAUNCH_TO_TEST_TIME - (current_time - self.start_time)}")
         if current_time - self.start_time > LAUNCH_TO_TEST_TIME:
             state_machine.to_state(TestState)
+
 
 class TestState:
     def __init__(self, old_state):
@@ -110,6 +115,7 @@ class TestState:
         if current_time - self.start_time > TEST_LENGTH_TIME:
             state_machine.to_state(FreefallState)
 
+
 class FreefallState:
     def __init__(self, old_state):
         set_degrees(SERVO_OFF_ANGLE)
@@ -117,11 +123,13 @@ class FreefallState:
     def process(self, state_machine: StateMachine, data_point):
         return
 
+
 # TODO (After launch): There's a better way to do this, but this has been tested and works
 servo: Servo
 def set_degrees(deg):
     global servo
     servo.set_degrees(deg)
+
 
 def main():
     interface.start_logging_loop_thread()
