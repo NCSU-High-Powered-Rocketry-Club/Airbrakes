@@ -11,22 +11,28 @@ class MSCLInterface:
     Thie MSCL interface is used to interact with the data collected by the
     Parker-LORD 3DMCX5-AR.
     """
-    def __init__ ( self, port, logfile: TextIOWrapper ):
+    def __init__ ( self, port, raw_data_logfile: TextIOWrapper, est_data_logfile: TextIOWrapper):
         # creating data node
         self.connection = mscl.Connection.Serial(port)
         self.node = mscl.InertialNode(self.connection)
-        self.logfile = logfile
+        self.raw_data_logfile = raw_data_logfile
+        self.est_data_logfile = est_data_logfile
+
         self.databuffer = deque()
+
         self.running = False
+
         # rate in which we poll date  in miliseconds (1/(Hz)*1000)
         self.polling_rate = int(1/(100)*1000)
+
 
 
     def stop_logging_loop(self):
         """ Stops the logging loop. """
         self.running = False
         self.logging_thread.join()
-        self.logfile.close()
+        self.raw_data_logfile.close()
+        self.est_data_logfile.close()
 
 
     def start_logging_loop_thread(self):
@@ -52,19 +58,26 @@ class MSCLInterface:
             # polling rate in milliseconds
             packets = self.node.getDataPackets(self.polling_rate)
 
-            # the first 10 data points are channel headers
-            if counter < 10:
-                for packet in packets:
-                    for data_point in packet.data():
-                        # write the channel names to log file
-                        self.logfile.write(str(data_point.channelName()) + ",")
-                    self.logfile.write("\n")
-                    counter += 1
-            else:
-                for packet in packets:
-                    # write all the data to the log file
-                    # write the acceleration and time data to the data buffer
-                    self._write_data_to_file(packet)
+            have_raw = False
+            have_est = False
+            while (have_raw == False) and (have_est == False):
+                logfile = self.raw_data_logfile
+                for data_point in packet.data(): 
+                    if (data_point.channelName() [:3] == "est"):
+                        logfile = self.est_data_logfile
+                        have_est = True 
+                    else: 
+                        have_raw = True
+                    logfile.write(str(data_point.as_float())+",")
+                logfile.write("\n")
+
+        
+
+
+            for packet in packets:
+               # write all the data to the log file
+              # write the acceleration and time data to the data buffer
+               self._write_data_to_file(packet)
 
 
     def pop_data_point(self):
@@ -78,6 +91,8 @@ class MSCLInterface:
     def _write_data_to_file(self, packet):
         # this data object is used to store accelerate and time data
         data_object = {}
+
+        logfile = self.raw_data_logfile
 
         for data_point in packet.data():
 
@@ -94,5 +109,9 @@ class MSCLInterface:
                 # send the accelerating and time data to the databuffer
                 self.databuffer.append(data_object)
 
-            self.logfile.write(str(data_point.as_float())+",")
-        self.logfile.write("\n")
+            if (data_point.channelName() [:3] == "est"):
+                logfile = self.est_data_logfile
+        
+
+            logfile.write(str(data_point.as_float())+",")
+        logfile.write("\n")
