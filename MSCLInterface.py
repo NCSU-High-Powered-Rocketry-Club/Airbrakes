@@ -58,26 +58,24 @@ class MSCLInterface:
             # polling rate in milliseconds
             packets = self.node.getDataPackets(self.polling_rate)
 
-            have_raw = False
-            have_est = False
-            while (have_raw == False) and (have_est == False):
-                logfile = self.raw_data_logfile
-                for data_point in packet.data(): 
-                    if (data_point.channelName() [:3] == "est"):
-                        logfile = self.est_data_logfile
-                        have_est = True 
-                    else: 
-                        have_raw = True
-                    logfile.write(str(data_point.as_float())+",")
-                logfile.write("\n")
-
-        
-
 
             for packet in packets:
-               # write all the data to the log file
-              # write the acceleration and time data to the data buffer
-               self._write_data_to_file(packet)
+                have_raw = False
+                have_est = False
+                while (have_raw == False) and (have_est == False):
+                    logfile = self.raw_data_logfile
+                    for data_point in packet.data(): 
+                        if (data_point.channelName() [:3] == "est"):
+                            logfile = self.est_data_logfile
+                            have_est = True 
+                        else: 
+                            have_raw = True
+                        logfile.write(str(data_point.as_float())+",")
+                    logfile.write("\n")
+
+                # write the acceleration and time data to the data buffer
+                # also write all other data to file
+                self._write_data_to_file(packet)
 
 
     def pop_data_point(self):
