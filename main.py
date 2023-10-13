@@ -36,7 +36,7 @@ def is_raspberrypi():
 if is_raspberrypi():
     # We are running on a pi
     from MSCLInterface import MSCLInterface
-    interface = MSCLInterface("/dev/ttyACM0", open("./logs/LORDlog.csv", "w"))
+    interface = MSCLInterface("/dev/ttyACM0", open("./logs/rawLORDlog.csv", "w"),  open("./logs/estLORDlog.csv", "w"))
 
     from Servo import Servo
 else:
