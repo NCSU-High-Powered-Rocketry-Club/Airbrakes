@@ -42,6 +42,7 @@ class MSCLInterface:
         """
         self.logging_thread = threading.Thread(target=self.start_logging_loop)
         self.logging_thread.start()
+    
 
 
     def start_logging_loop(self):
@@ -53,6 +54,9 @@ class MSCLInterface:
         """
         self.running = True
         counter = 0
+
+        have_raw = False
+        have_est = False
         while self.running:
             # get all the data packets from the node with a timeout of the
             # polling rate in milliseconds
@@ -60,22 +64,31 @@ class MSCLInterface:
 
 
             for packet in packets:
-                have_raw = False
-                have_est = False
-                while (have_raw == False) and (have_est == False):
-                    logfile = self.raw_data_logfile
-                    for data_point in packet.data(): 
-                        if (data_point.channelName() [:3] == "est"):
-                            logfile = self.est_data_logfile
-                            have_est = True 
-                        else: 
+                if (have_raw == False):
+                    for data_point in packet.data():
+                        if (data_point.channelName() [:3] != "est"):
+                            self.print_headers(packet,self.raw_data_logfile)
                             have_raw = True
-                        logfile.write(str(data_point.as_float())+",")
-                    logfile.write("\n")
+                        break
 
-                # write the acceleration and time data to the data buffer
+                if (have_est == False):
+                    for data_point in packet.data():
+                        if (data_point.channelName() [:3] == "est"):
+                            self.print_headers(packet, self.est_data_logfile)
+                            have_est = True
+                        break
+
+                if (have_est == False) or (have_raw == False):
+                    break
+
+               # write the acceleration and time data to the data buffer
                 # also write all other data to file
                 self._write_data_to_file(packet)
+
+    def print_headers(self, packet, logfile):
+            for data_point in packet.data(): 
+                logfile.write(str(data_point.channelName())+",")
+            logfile.write("\n")
 
 
     def pop_data_point(self):
