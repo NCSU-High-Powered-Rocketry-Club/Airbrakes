@@ -13,8 +13,8 @@ LAUNCH_TO_TEST_TIME = 5 # Time from liftoff detected to test start
 TEST_LENGTH_TIME = 4 # Length of the test
 
 # these angles represent open and closed for the airbrakes, they are arbitrary
-SERVO_OFF_ANGLE = 120
-SERVO_ON_ANGLE = 45
+SERVO_OFF_ANGLE = 30
+SERVO_ON_ANGLE = 150
 
 # this is the pin that the servo's data wire is plugged into
 SERVO_PIN = 32
@@ -119,7 +119,7 @@ class TestState:
 class FreefallState:
     def __init__(self, old_state):
         set_degrees(SERVO_OFF_ANGLE)
-
+    
     def process(self, state_machine: StateMachine, data_point):
         return
 
@@ -142,7 +142,7 @@ def main():
 
     #servo.set_degrees(45)
 
-    state_machine = StateMachine(StandbyState)
+    state_machine = StateMachine(LiftoffState)#(StandbyState)
 
     while True:
         try:

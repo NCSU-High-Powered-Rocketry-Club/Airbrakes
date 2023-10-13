@@ -1,8 +1,8 @@
 from Servo import Servo
 
 # these angles represent open and closed for the airbrakes, they are arbitrary
-SERVO_OFF_ANGLE = 120
-SERVO_ON_ANGLE = 45
+SERVO_OFF_ANGLE = 70
+SERVO_ON_ANGLE = 150
 
 
 # this is the pin that the servo's data wire is plugged into

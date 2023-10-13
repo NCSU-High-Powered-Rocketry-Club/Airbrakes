@@ -646,6 +646,9 @@ class Connection(object):
     def description(self):
         return _mscl.Connection_description(self)
 
+    def port(self):
+        return _mscl.Connection_port(self)
+
     def type(self):
         return _mscl.Connection_type(self)
 
@@ -1022,6 +1025,7 @@ class WirelessTypes(object):
     region_canada = _mscl.WirelessTypes_region_canada
     region_southAfrica = _mscl.WirelessTypes_region_southAfrica
     region_indonesia = _mscl.WirelessTypes_region_indonesia
+    region_taiwan = _mscl.WirelessTypes_region_taiwan
     chSetting_inputRange = _mscl.WirelessTypes_chSetting_inputRange
     chSetting_filterSettlingTime = _mscl.WirelessTypes_chSetting_filterSettlingTime
     chSetting_thermocoupleType = _mscl.WirelessTypes_chSetting_thermocoupleType
@@ -4272,6 +4276,7 @@ class MipTypes(object):
     CMD_SENSOR_MESSAGE_FORMAT = _mscl.MipTypes_CMD_SENSOR_MESSAGE_FORMAT
     CMD_GNSS_MESSAGE_FORMAT = _mscl.MipTypes_CMD_GNSS_MESSAGE_FORMAT
     CMD_EF_MESSAGE_FORMAT = _mscl.MipTypes_CMD_EF_MESSAGE_FORMAT
+    CMD_NMEA_MESSAGE_FORMAT = _mscl.MipTypes_CMD_NMEA_MESSAGE_FORMAT
     CMD_POLL = _mscl.MipTypes_CMD_POLL
     CMD_GET_BASE_RATE = _mscl.MipTypes_CMD_GET_BASE_RATE
     CMD_MESSAGE_FORMAT = _mscl.MipTypes_CMD_MESSAGE_FORMAT
@@ -4312,6 +4317,7 @@ class MipTypes(object):
     CMD_COMPLEMENTARY_FILTER_SETTINGS = _mscl.MipTypes_CMD_COMPLEMENTARY_FILTER_SETTINGS
     CMD_SENSOR_RANGE = _mscl.MipTypes_CMD_SENSOR_RANGE
     CMD_SUPPORTED_SENSOR_RANGES = _mscl.MipTypes_CMD_SUPPORTED_SENSOR_RANGES
+    CMD_LOWPASS_ANTIALIASING_FILTER = _mscl.MipTypes_CMD_LOWPASS_ANTIALIASING_FILTER
     CMD_DATA_STREAM_FORMAT = _mscl.MipTypes_CMD_DATA_STREAM_FORMAT
     CMD_POWER_STATES = _mscl.MipTypes_CMD_POWER_STATES
     CMD_GPS_STARTUP_SETTINGS = _mscl.MipTypes_CMD_GPS_STARTUP_SETTINGS
@@ -4365,6 +4371,7 @@ class MipTypes(object):
     CMD_EF_ADAPTIVE_FILTER_OPTIONS = _mscl.MipTypes_CMD_EF_ADAPTIVE_FILTER_OPTIONS
     CMD_EF_MULTI_ANTENNA_OFFSET = _mscl.MipTypes_CMD_EF_MULTI_ANTENNA_OFFSET
     CMD_EF_RELATIVE_POSITION_REF = _mscl.MipTypes_CMD_EF_RELATIVE_POSITION_REF
+    CMD_EF_LEVER_ARM_OFFSET_REF = _mscl.MipTypes_CMD_EF_LEVER_ARM_OFFSET_REF
     CMD_EF_EXTERN_SPEED_UPDATE = _mscl.MipTypes_CMD_EF_EXTERN_SPEED_UPDATE
     CMD_EF_SPEED_MEASUREMENT_OFFSET = _mscl.MipTypes_CMD_EF_SPEED_MEASUREMENT_OFFSET
     CMD_EF_VERTICAL_GYRO_CONSTRAINT = _mscl.MipTypes_CMD_EF_VERTICAL_GYRO_CONSTRAINT
@@ -4426,6 +4433,9 @@ class MipTypes(object):
     CH_FIELD_GNSS_DGNSS_CHANNEL_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_DGNSS_CHANNEL_STATUS
     CH_FIELD_GNSS_CLOCK_INFO_2 = _mscl.MipTypes_CH_FIELD_GNSS_CLOCK_INFO_2
     CH_FIELD_GNSS_GPS_LEAP_SECONDS = _mscl.MipTypes_CH_FIELD_GNSS_GPS_LEAP_SECONDS
+    CH_FIELD_GNSS_SBAS_INFO = _mscl.MipTypes_CH_FIELD_GNSS_SBAS_INFO
+    CH_FIELD_GNSS_SBAS_CORRECTION = _mscl.MipTypes_CH_FIELD_GNSS_SBAS_CORRECTION
+    CH_FIELD_GNSS_RF_ERROR_DETECTION = _mscl.MipTypes_CH_FIELD_GNSS_RF_ERROR_DETECTION
     CH_FIELD_GNSS_SATELLITE_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_SATELLITE_STATUS
     CH_FIELD_GNSS_RAW_OBSERVATION = _mscl.MipTypes_CH_FIELD_GNSS_RAW_OBSERVATION
     CH_FIELD_GNSS_STATION_INFO = _mscl.MipTypes_CH_FIELD_GNSS_STATION_INFO
@@ -4524,6 +4534,9 @@ class MipTypes(object):
     CH_FIELD_GNSS_1_DGNSS_CHANNEL_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_1_DGNSS_CHANNEL_STATUS
     CH_FIELD_GNSS_1_CLOCK_INFO_2 = _mscl.MipTypes_CH_FIELD_GNSS_1_CLOCK_INFO_2
     CH_FIELD_GNSS_1_GPS_LEAP_SECONDS = _mscl.MipTypes_CH_FIELD_GNSS_1_GPS_LEAP_SECONDS
+    CH_FIELD_GNSS_1_SBAS_INFO = _mscl.MipTypes_CH_FIELD_GNSS_1_SBAS_INFO
+    CH_FIELD_GNSS_1_SBAS_CORRECTION = _mscl.MipTypes_CH_FIELD_GNSS_1_SBAS_CORRECTION
+    CH_FIELD_GNSS_1_RF_ERROR_DETECTION = _mscl.MipTypes_CH_FIELD_GNSS_1_RF_ERROR_DETECTION
     CH_FIELD_GNSS_1_SATELLITE_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_1_SATELLITE_STATUS
     CH_FIELD_GNSS_1_RAW_OBSERVATION = _mscl.MipTypes_CH_FIELD_GNSS_1_RAW_OBSERVATION
     CH_FIELD_GNSS_1_STATION_INFO = _mscl.MipTypes_CH_FIELD_GNSS_1_STATION_INFO
@@ -4557,6 +4570,9 @@ class MipTypes(object):
     CH_FIELD_GNSS_2_DGNSS_CHANNEL_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_2_DGNSS_CHANNEL_STATUS
     CH_FIELD_GNSS_2_CLOCK_INFO_2 = _mscl.MipTypes_CH_FIELD_GNSS_2_CLOCK_INFO_2
     CH_FIELD_GNSS_2_GPS_LEAP_SECONDS = _mscl.MipTypes_CH_FIELD_GNSS_2_GPS_LEAP_SECONDS
+    CH_FIELD_GNSS_2_SBAS_INFO = _mscl.MipTypes_CH_FIELD_GNSS_2_SBAS_INFO
+    CH_FIELD_GNSS_2_SBAS_CORRECTION = _mscl.MipTypes_CH_FIELD_GNSS_2_SBAS_CORRECTION
+    CH_FIELD_GNSS_2_RF_ERROR_DETECTION = _mscl.MipTypes_CH_FIELD_GNSS_2_RF_ERROR_DETECTION
     CH_FIELD_GNSS_2_SATELLITE_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_2_SATELLITE_STATUS
     CH_FIELD_GNSS_2_RAW_OBSERVATION = _mscl.MipTypes_CH_FIELD_GNSS_2_RAW_OBSERVATION
     CH_FIELD_GNSS_2_STATION_INFO = _mscl.MipTypes_CH_FIELD_GNSS_2_STATION_INFO
@@ -4590,6 +4606,9 @@ class MipTypes(object):
     CH_FIELD_GNSS_3_DGNSS_CHANNEL_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_3_DGNSS_CHANNEL_STATUS
     CH_FIELD_GNSS_3_CLOCK_INFO_2 = _mscl.MipTypes_CH_FIELD_GNSS_3_CLOCK_INFO_2
     CH_FIELD_GNSS_3_GPS_LEAP_SECONDS = _mscl.MipTypes_CH_FIELD_GNSS_3_GPS_LEAP_SECONDS
+    CH_FIELD_GNSS_3_SBAS_INFO = _mscl.MipTypes_CH_FIELD_GNSS_3_SBAS_INFO
+    CH_FIELD_GNSS_3_SBAS_CORRECTION = _mscl.MipTypes_CH_FIELD_GNSS_3_SBAS_CORRECTION
+    CH_FIELD_GNSS_3_RF_ERROR_DETECTION = _mscl.MipTypes_CH_FIELD_GNSS_3_RF_ERROR_DETECTION
     CH_FIELD_GNSS_3_SATELLITE_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_3_SATELLITE_STATUS
     CH_FIELD_GNSS_3_RAW_OBSERVATION = _mscl.MipTypes_CH_FIELD_GNSS_3_RAW_OBSERVATION
     CH_FIELD_GNSS_3_STATION_INFO = _mscl.MipTypes_CH_FIELD_GNSS_3_STATION_INFO
@@ -4623,6 +4642,9 @@ class MipTypes(object):
     CH_FIELD_GNSS_4_DGNSS_CHANNEL_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_4_DGNSS_CHANNEL_STATUS
     CH_FIELD_GNSS_4_CLOCK_INFO_2 = _mscl.MipTypes_CH_FIELD_GNSS_4_CLOCK_INFO_2
     CH_FIELD_GNSS_4_GPS_LEAP_SECONDS = _mscl.MipTypes_CH_FIELD_GNSS_4_GPS_LEAP_SECONDS
+    CH_FIELD_GNSS_4_SBAS_INFO = _mscl.MipTypes_CH_FIELD_GNSS_4_SBAS_INFO
+    CH_FIELD_GNSS_4_SBAS_CORRECTION = _mscl.MipTypes_CH_FIELD_GNSS_4_SBAS_CORRECTION
+    CH_FIELD_GNSS_4_RF_ERROR_DETECTION = _mscl.MipTypes_CH_FIELD_GNSS_4_RF_ERROR_DETECTION
     CH_FIELD_GNSS_4_SATELLITE_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_4_SATELLITE_STATUS
     CH_FIELD_GNSS_4_RAW_OBSERVATION = _mscl.MipTypes_CH_FIELD_GNSS_4_RAW_OBSERVATION
     CH_FIELD_GNSS_4_STATION_INFO = _mscl.MipTypes_CH_FIELD_GNSS_4_STATION_INFO
@@ -4656,6 +4678,9 @@ class MipTypes(object):
     CH_FIELD_GNSS_5_DGNSS_CHANNEL_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_5_DGNSS_CHANNEL_STATUS
     CH_FIELD_GNSS_5_CLOCK_INFO_2 = _mscl.MipTypes_CH_FIELD_GNSS_5_CLOCK_INFO_2
     CH_FIELD_GNSS_5_GPS_LEAP_SECONDS = _mscl.MipTypes_CH_FIELD_GNSS_5_GPS_LEAP_SECONDS
+    CH_FIELD_GNSS_5_SBAS_INFO = _mscl.MipTypes_CH_FIELD_GNSS_5_SBAS_INFO
+    CH_FIELD_GNSS_5_SBAS_CORRECTION = _mscl.MipTypes_CH_FIELD_GNSS_5_SBAS_CORRECTION
+    CH_FIELD_GNSS_5_RF_ERROR_DETECTION = _mscl.MipTypes_CH_FIELD_GNSS_5_RF_ERROR_DETECTION
     CH_FIELD_GNSS_5_SATELLITE_STATUS = _mscl.MipTypes_CH_FIELD_GNSS_5_SATELLITE_STATUS
     CH_FIELD_GNSS_5_RAW_OBSERVATION = _mscl.MipTypes_CH_FIELD_GNSS_5_RAW_OBSERVATION
     CH_FIELD_GNSS_5_STATION_INFO = _mscl.MipTypes_CH_FIELD_GNSS_5_STATION_INFO
@@ -4674,6 +4699,7 @@ class MipTypes(object):
     CH_FIELD_GNSS_5_SHARED_DELTA_REFERENCE_TIME = _mscl.MipTypes_CH_FIELD_GNSS_5_SHARED_DELTA_REFERENCE_TIME
     CH_FIELD_GNSS_5_SHARED_EXTERNAL_TIMESTAMP = _mscl.MipTypes_CH_FIELD_GNSS_5_SHARED_EXTERNAL_TIMESTAMP
     CH_FIELD_GNSS_5_SHARED_DELTA_EXTERNAL_TIME = _mscl.MipTypes_CH_FIELD_GNSS_5_SHARED_DELTA_EXTERNAL_TIME
+    CH_FIELD_SYSTEM_BUILT_IN_TEST = _mscl.MipTypes_CH_FIELD_SYSTEM_BUILT_IN_TEST
     CH_FIELD_SYSTEM_TIME_SYNC_STATUS = _mscl.MipTypes_CH_FIELD_SYSTEM_TIME_SYNC_STATUS
     CH_FIELD_SYSTEM_GPIO_STATE = _mscl.MipTypes_CH_FIELD_SYSTEM_GPIO_STATE
     CH_FIELD_SYSTEM_SHARED_EVENT_SOURCE = _mscl.MipTypes_CH_FIELD_SYSTEM_SHARED_EVENT_SOURCE
@@ -4799,6 +4825,19 @@ class MipTypes(object):
     CH_VALID_FLAGS = _mscl.MipTypes_CH_VALID_FLAGS
     CH_PPS_VALID = _mscl.MipTypes_CH_PPS_VALID
     CH_LAST_PPS = _mscl.MipTypes_CH_LAST_PPS
+    CH_UDREI = _mscl.MipTypes_CH_UDREI
+    CH_PSEUDORANGE_CORRECTION = _mscl.MipTypes_CH_PSEUDORANGE_CORRECTION
+    CH_IONOSPHERIC_CORRECTION = _mscl.MipTypes_CH_IONOSPHERIC_CORRECTION
+    CH_JAMMING_STATE = _mscl.MipTypes_CH_JAMMING_STATE
+    CH_SPOOFING_STATE = _mscl.MipTypes_CH_SPOOFING_STATE
+    CH_BIT_SYSTEM_GENERAL = _mscl.MipTypes_CH_BIT_SYSTEM_GENERAL
+    CH_BIT_SYSTEM_PROCESS = _mscl.MipTypes_CH_BIT_SYSTEM_PROCESS
+    CH_BIT_IMU_GENERAL = _mscl.MipTypes_CH_BIT_IMU_GENERAL
+    CH_BIT_IMU_SENSORS = _mscl.MipTypes_CH_BIT_IMU_SENSORS
+    CH_BIT_IMU_FACTORY_BITS = _mscl.MipTypes_CH_BIT_IMU_FACTORY_BITS
+    CH_BIT_FILTER_GENERAL = _mscl.MipTypes_CH_BIT_FILTER_GENERAL
+    CH_SYSTEM_ID = _mscl.MipTypes_CH_SYSTEM_ID
+    CH_SATELLITE_ID = _mscl.MipTypes_CH_SATELLITE_ID
 
     @staticmethod
     def channelName(field, qualifier):
@@ -4893,6 +4932,7 @@ class MipChannelIdentifier(object):
     GNSS_SATELLITE_ID = _mscl.MipChannelIdentifier_GNSS_SATELLITE_ID
     GNSS_SIGNAL_ID = _mscl.MipChannelIdentifier_GNSS_SIGNAL_ID
     AIDING_MEASUREMENT_TYPE = _mscl.MipChannelIdentifier_AIDING_MEASUREMENT_TYPE
+    GNSS_RF_BAND = _mscl.MipChannelIdentifier_GNSS_RF_BAND
     GNSS = _mscl.MipChannelIdentifier_GNSS
     DUAL_ANTENNA = _mscl.MipChannelIdentifier_DUAL_ANTENNA
     HEADING = _mscl.MipChannelIdentifier_HEADING
@@ -4969,6 +5009,10 @@ class MipChannelIdentifier(object):
     BEIDOU_B2I = _mscl.MipChannelIdentifier_BEIDOU_B2I
     BEIDOU_B2Q = _mscl.MipChannelIdentifier_BEIDOU_B2Q
     BEIDOU_B2IQ = _mscl.MipChannelIdentifier_BEIDOU_B2IQ
+    UNKNOWN_RF_BAND = _mscl.MipChannelIdentifier_UNKNOWN_RF_BAND
+    RF_BAND_L1 = _mscl.MipChannelIdentifier_RF_BAND_L1
+    RF_BAND_L2 = _mscl.MipChannelIdentifier_RF_BAND_L2
+    RF_BAND_L5 = _mscl.MipChannelIdentifier_RF_BAND_L5
 
     def __init__(self, *args):
         _mscl.MipChannelIdentifier_swiginit(self, _mscl.new_MipChannelIdentifier(*args))
@@ -5022,10 +5066,14 @@ class GnssReceiverInfo(object):
     id = property(_mscl.GnssReceiverInfo_id_get, _mscl.GnssReceiverInfo_id_set)
     targetDataClass = property(_mscl.GnssReceiverInfo_targetDataClass_get, _mscl.GnssReceiverInfo_targetDataClass_set)
     description = property(_mscl.GnssReceiverInfo_description_get, _mscl.GnssReceiverInfo_description_set)
+    module = property(_mscl.GnssReceiverInfo_module_get, _mscl.GnssReceiverInfo_module_set)
+    fwId = property(_mscl.GnssReceiverInfo_fwId_get, _mscl.GnssReceiverInfo_fwId_set)
+    fwVersion = property(_mscl.GnssReceiverInfo_fwVersion_get, _mscl.GnssReceiverInfo_fwVersion_set)
     __swig_destroy__ = _mscl.delete_GnssReceiverInfo
 
 # Register GnssReceiverInfo in _mscl:
 _mscl.GnssReceiverInfo_swigregister(GnssReceiverInfo)
+GnssReceiverInfo.INFO_NOT_FOUND = _mscl.cvar.GnssReceiverInfo_INFO_NOT_FOUND
 
 class DeviceCommPort(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
@@ -5132,8 +5180,10 @@ class InertialTypes(object):
     TARE_ROLL_AXIS = _mscl.InertialTypes_TARE_ROLL_AXIS
     TARE_PITCH_AXIS = _mscl.InertialTypes_TARE_PITCH_AXIS
     TARE_YAW_AXIS = _mscl.InertialTypes_TARE_YAW_AXIS
-    INTERNAL_GNSS = _mscl.InertialTypes_INTERNAL_GNSS
+    INTERNAL_GNSS_ALL = _mscl.InertialTypes_INTERNAL_GNSS_ALL
     EXTERNAL_GNSS = _mscl.InertialTypes_EXTERNAL_GNSS
+    INTERNAL_GNSS1 = _mscl.InertialTypes_INTERNAL_GNSS1
+    INTERNAL_GNSS2 = _mscl.InertialTypes_INTERNAL_GNSS2
     FIX_SBAS_CORRECTIONS = _mscl.InertialTypes_FIX_SBAS_CORRECTIONS
     FIX_DGNSS_CORRECTIONS = _mscl.InertialTypes_FIX_DGNSS_CORRECTIONS
     FIXTYPE_3D = _mscl.InertialTypes_FIXTYPE_3D
@@ -5246,6 +5296,7 @@ class InertialTypes(object):
     ODOMETER_AIDING = _mscl.InertialTypes_ODOMETER_AIDING
     MAGNETOMETER_AIDING = _mscl.InertialTypes_MAGNETOMETER_AIDING
     EXTERNAL_HEADING_AIDING = _mscl.InertialTypes_EXTERNAL_HEADING_AIDING
+    ALL_AIDING_MEASUREMENTS = _mscl.InertialTypes_ALL_AIDING_MEASUREMENTS
     GPS = _mscl.InertialTypes_GPS
     SBAS = _mscl.InertialTypes_SBAS
     GALILEO = _mscl.InertialTypes_GALILEO
@@ -5303,6 +5354,23 @@ class InertialTypes(object):
     OVERRANGE_MAG_Y = _mscl.InertialTypes_OVERRANGE_MAG_Y
     OVERRANGE_MAG_Z = _mscl.InertialTypes_OVERRANGE_MAG_Z
     OVERRANGE_PRESSURE = _mscl.InertialTypes_OVERRANGE_PRESSURE
+    UNKNOWN_SBAS_SYSTEM = _mscl.InertialTypes_UNKNOWN_SBAS_SYSTEM
+    WAAS = _mscl.InertialTypes_WAAS
+    EGNOS = _mscl.InertialTypes_EGNOS
+    MSAS = _mscl.InertialTypes_MSAS
+    GAGAN = _mscl.InertialTypes_GAGAN
+    SBAS_INFO_RANGE_AVAILABLE = _mscl.InertialTypes_SBAS_INFO_RANGE_AVAILABLE
+    SBAS_INFO_CORRECTIONS_AVAILABLE = _mscl.InertialTypes_SBAS_INFO_CORRECTIONS_AVAILABLE
+    SBAS_INFO_INTEGRITY_AVAILABLE = _mscl.InertialTypes_SBAS_INFO_INTEGRITY_AVAILABLE
+    SBAS_INFO_TEST = _mscl.InertialTypes_SBAS_INFO_TEST
+    JAMMING_STATE_UNKNOWN = _mscl.InertialTypes_JAMMING_STATE_UNKNOWN
+    JAMMING_STATE_NONE = _mscl.InertialTypes_JAMMING_STATE_NONE
+    JAMMING_STATE_PARTIAL = _mscl.InertialTypes_JAMMING_STATE_PARTIAL
+    JAMMING_STATE_SIGNIFICANT = _mscl.InertialTypes_JAMMING_STATE_SIGNIFICANT
+    SPOOFING_STATE_UNKNOWN = _mscl.InertialTypes_SPOOFING_STATE_UNKNOWN
+    SPOOFING_STATE_NONE = _mscl.InertialTypes_SPOOFING_STATE_NONE
+    SPOOFING_STATE_PARTIAL = _mscl.InertialTypes_SPOOFING_STATE_PARTIAL
+    SPOOFING_STATE_SIGNIFICANT = _mscl.InertialTypes_SPOOFING_STATE_SIGNIFICANT
 
     def __init__(self):
         _mscl.InertialTypes_swiginit(self, _mscl.new_InertialTypes())
@@ -5310,6 +5378,65 @@ class InertialTypes(object):
 
 # Register InertialTypes in _mscl:
 _mscl.InertialTypes_swigregister(InertialTypes)
+
+class NmeaMessageFormat(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+    GGA = _mscl.NmeaMessageFormat_GGA
+    GLL = _mscl.NmeaMessageFormat_GLL
+    GSV = _mscl.NmeaMessageFormat_GSV
+    RMC = _mscl.NmeaMessageFormat_RMC
+    VTG = _mscl.NmeaMessageFormat_VTG
+    HDT = _mscl.NmeaMessageFormat_HDT
+    ZDA = _mscl.NmeaMessageFormat_ZDA
+    PKRA = _mscl.NmeaMessageFormat_PKRA
+    PKRR = _mscl.NmeaMessageFormat_PKRR
+    IGNORED = _mscl.NmeaMessageFormat_IGNORED
+    GNSS = _mscl.NmeaMessageFormat_GNSS
+    GPS = _mscl.NmeaMessageFormat_GPS
+    GALILEO = _mscl.NmeaMessageFormat_GALILEO
+    GLONASS = _mscl.NmeaMessageFormat_GLONASS
+
+    def __init__(self):
+        _mscl.NmeaMessageFormat_swiginit(self, _mscl.new_NmeaMessageFormat())
+    __swig_destroy__ = _mscl.delete_NmeaMessageFormat
+
+    def sentenceType(self, *args):
+        return _mscl.NmeaMessageFormat_sentenceType(self, *args)
+
+    def talkerId(self, *args):
+        return _mscl.NmeaMessageFormat_talkerId(self, *args)
+
+    def sourceDataClass(self, *args):
+        return _mscl.NmeaMessageFormat_sourceDataClass(self, *args)
+
+    def sampleRate(self, *args):
+        return _mscl.NmeaMessageFormat_sampleRate(self, *args)
+
+    @staticmethod
+    def talkerIdRequired(sentenceType):
+        return _mscl.NmeaMessageFormat_talkerIdRequired(sentenceType)
+
+    @staticmethod
+    def dataClassSupported(dataClass, sentenceType):
+        return _mscl.NmeaMessageFormat_dataClassSupported(dataClass, sentenceType)
+
+    @staticmethod
+    def toCommandParameters(nmeaFormats):
+        return _mscl.NmeaMessageFormat_toCommandParameters(nmeaFormats)
+
+# Register NmeaMessageFormat in _mscl:
+_mscl.NmeaMessageFormat_swigregister(NmeaMessageFormat)
+NmeaMessageFormat.MAX_FREQUENCY = _mscl.cvar.NmeaMessageFormat_MAX_FREQUENCY
+
+def NmeaMessageFormat_talkerIdRequired(sentenceType):
+    return _mscl.NmeaMessageFormat_talkerIdRequired(sentenceType)
+
+def NmeaMessageFormat_dataClassSupported(dataClass, sentenceType):
+    return _mscl.NmeaMessageFormat_dataClassSupported(dataClass, sentenceType)
+
+def NmeaMessageFormat_toCommandParameters(nmeaFormats):
+    return _mscl.NmeaMessageFormat_toCommandParameters(nmeaFormats)
 
 class Matrix_3x3(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
@@ -5539,36 +5666,36 @@ class ConstellationSettingsData(object):
 # Register ConstellationSettingsData in _mscl:
 _mscl.ConstellationSettingsData_swigregister(ConstellationSettingsData)
 
-class AdvancedLowPassFilterData(object):
+class LowPassFilterData(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
     __repr__ = _swig_repr
-    SET_TO_HALF_REPORTING_RATE = _mscl.AdvancedLowPassFilterData_SET_TO_HALF_REPORTING_RATE
-    USER_SPECIFIED_CUTOFF_FREQ = _mscl.AdvancedLowPassFilterData_USER_SPECIFIED_CUTOFF_FREQ
+    SET_TO_HALF_REPORTING_RATE = _mscl.LowPassFilterData_SET_TO_HALF_REPORTING_RATE
+    USER_SPECIFIED_CUTOFF_FREQ = _mscl.LowPassFilterData_USER_SPECIFIED_CUTOFF_FREQ
 
     def __init__(self, *args):
-        _mscl.AdvancedLowPassFilterData_swiginit(self, _mscl.new_AdvancedLowPassFilterData(*args))
-    dataDescriptor = property(_mscl.AdvancedLowPassFilterData_dataDescriptor_get, _mscl.AdvancedLowPassFilterData_dataDescriptor_set)
-    manualFilterBandwidthConfig = property(_mscl.AdvancedLowPassFilterData_manualFilterBandwidthConfig_get, _mscl.AdvancedLowPassFilterData_manualFilterBandwidthConfig_set)
-    applyLowPassFilter = property(_mscl.AdvancedLowPassFilterData_applyLowPassFilter_get, _mscl.AdvancedLowPassFilterData_applyLowPassFilter_set)
-    cutoffFrequency = property(_mscl.AdvancedLowPassFilterData_cutoffFrequency_get, _mscl.AdvancedLowPassFilterData_cutoffFrequency_set)
+        _mscl.LowPassFilterData_swiginit(self, _mscl.new_LowPassFilterData(*args))
+    dataDescriptor = property(_mscl.LowPassFilterData_dataDescriptor_get, _mscl.LowPassFilterData_dataDescriptor_set)
+    manualFilterBandwidthConfig = property(_mscl.LowPassFilterData_manualFilterBandwidthConfig_get, _mscl.LowPassFilterData_manualFilterBandwidthConfig_set)
+    applyLowPassFilter = property(_mscl.LowPassFilterData_applyLowPassFilter_get, _mscl.LowPassFilterData_applyLowPassFilter_set)
+    cutoffFrequency = property(_mscl.LowPassFilterData_cutoffFrequency_get, _mscl.LowPassFilterData_cutoffFrequency_set)
 
     @staticmethod
     def getDataDescriptorForCommand(descriptor):
-        return _mscl.AdvancedLowPassFilterData_getDataDescriptorForCommand(descriptor)
+        return _mscl.LowPassFilterData_getDataDescriptorForCommand(descriptor)
 
     @staticmethod
     def getDataDescriptorFromUint8(descriptor):
-        return _mscl.AdvancedLowPassFilterData_getDataDescriptorFromUint8(descriptor)
-    __swig_destroy__ = _mscl.delete_AdvancedLowPassFilterData
+        return _mscl.LowPassFilterData_getDataDescriptorFromUint8(descriptor)
+    __swig_destroy__ = _mscl.delete_LowPassFilterData
 
-# Register AdvancedLowPassFilterData in _mscl:
-_mscl.AdvancedLowPassFilterData_swigregister(AdvancedLowPassFilterData)
+# Register LowPassFilterData in _mscl:
+_mscl.LowPassFilterData_swigregister(LowPassFilterData)
 
-def AdvancedLowPassFilterData_getDataDescriptorForCommand(descriptor):
-    return _mscl.AdvancedLowPassFilterData_getDataDescriptorForCommand(descriptor)
+def LowPassFilterData_getDataDescriptorForCommand(descriptor):
+    return _mscl.LowPassFilterData_getDataDescriptorForCommand(descriptor)
 
-def AdvancedLowPassFilterData_getDataDescriptorFromUint8(descriptor):
-    return _mscl.AdvancedLowPassFilterData_getDataDescriptorFromUint8(descriptor)
+def LowPassFilterData_getDataDescriptorFromUint8(descriptor):
+    return _mscl.LowPassFilterData_getDataDescriptorFromUint8(descriptor)
 
 class ComplementaryFilterData(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
@@ -6610,6 +6737,328 @@ class MipDataPoint(DataPoint):
 # Register MipDataPoint in _mscl:
 _mscl.MipDataPoint_swigregister(MipDataPoint)
 
+class ContinuousBIT(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+
+    def __init__(self, *args, **kwargs):
+        raise AttributeError("No constructor defined - class is abstract")
+    __repr__ = _swig_repr
+
+    def as_MipDataPoints(self):
+        return _mscl.ContinuousBIT_as_MipDataPoints(self)
+
+    @staticmethod
+    def getMipDataPoints(model, data):
+        return _mscl.ContinuousBIT_getMipDataPoints(model, data)
+    __swig_destroy__ = _mscl.delete_ContinuousBIT
+
+# Register ContinuousBIT in _mscl:
+_mscl.ContinuousBIT_swigregister(ContinuousBIT)
+
+def ContinuousBIT_getMipDataPoints(model, data):
+    return _mscl.ContinuousBIT_getMipDataPoints(model, data)
+
+class CV7ContinuousBIT_System_General(Bitfield):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self, *args):
+        _mscl.CV7ContinuousBIT_System_General_swiginit(self, _mscl.new_CV7ContinuousBIT_System_General(*args))
+    SYSTEM_CLOCK_FAILURE = _mscl.CV7ContinuousBIT_System_General_SYSTEM_CLOCK_FAILURE
+    POWER_FAULT = _mscl.CV7ContinuousBIT_System_General_POWER_FAULT
+    FIRMWARE_FAULT = _mscl.CV7ContinuousBIT_System_General_FIRMWARE_FAULT
+    TIMING_OVERLOAD = _mscl.CV7ContinuousBIT_System_General_TIMING_OVERLOAD
+    BUFFER_OVERRUN = _mscl.CV7ContinuousBIT_System_General_BUFFER_OVERRUN
+
+    def flags(self):
+        return _mscl.CV7ContinuousBIT_System_General_flags(self)
+
+    def systemClockFailure(self):
+        return _mscl.CV7ContinuousBIT_System_General_systemClockFailure(self)
+
+    def powerFault(self):
+        return _mscl.CV7ContinuousBIT_System_General_powerFault(self)
+
+    def firmwareFault(self):
+        return _mscl.CV7ContinuousBIT_System_General_firmwareFault(self)
+
+    def timingOverload(self):
+        return _mscl.CV7ContinuousBIT_System_General_timingOverload(self)
+
+    def bufferOverrun(self):
+        return _mscl.CV7ContinuousBIT_System_General_bufferOverrun(self)
+    __swig_destroy__ = _mscl.delete_CV7ContinuousBIT_System_General
+
+# Register CV7ContinuousBIT_System_General in _mscl:
+_mscl.CV7ContinuousBIT_System_General_swigregister(CV7ContinuousBIT_System_General)
+
+class CV7ContinuousBIT_System_Process(Bitfield):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self, *args):
+        _mscl.CV7ContinuousBIT_System_Process_swiginit(self, _mscl.new_CV7ContinuousBIT_System_Process(*args))
+    IMU_PROCESS_FAULT = _mscl.CV7ContinuousBIT_System_Process_IMU_PROCESS_FAULT
+    IMU_RATE_MISMATCH = _mscl.CV7ContinuousBIT_System_Process_IMU_RATE_MISMATCH
+    IMU_DROPPED_DATA = _mscl.CV7ContinuousBIT_System_Process_IMU_DROPPED_DATA
+    IMU_STUCK = _mscl.CV7ContinuousBIT_System_Process_IMU_STUCK
+    FILTER_PROCESS_FAULT = _mscl.CV7ContinuousBIT_System_Process_FILTER_PROCESS_FAULT
+    FILTER_DROPPED_DATA = _mscl.CV7ContinuousBIT_System_Process_FILTER_DROPPED_DATA
+    FILTER_RATE_MISMATCH = _mscl.CV7ContinuousBIT_System_Process_FILTER_RATE_MISMATCH
+    FILTER_STUCK = _mscl.CV7ContinuousBIT_System_Process_FILTER_STUCK
+
+    def flags(self):
+        return _mscl.CV7ContinuousBIT_System_Process_flags(self)
+
+    def imuProcessFault(self):
+        return _mscl.CV7ContinuousBIT_System_Process_imuProcessFault(self)
+
+    def imuRateMismatch(self):
+        return _mscl.CV7ContinuousBIT_System_Process_imuRateMismatch(self)
+
+    def imuDroppedData(self):
+        return _mscl.CV7ContinuousBIT_System_Process_imuDroppedData(self)
+
+    def imuStuck(self):
+        return _mscl.CV7ContinuousBIT_System_Process_imuStuck(self)
+
+    def filterProcessFault(self):
+        return _mscl.CV7ContinuousBIT_System_Process_filterProcessFault(self)
+
+    def filterDroppedData(self):
+        return _mscl.CV7ContinuousBIT_System_Process_filterDroppedData(self)
+
+    def filterRateMismatch(self):
+        return _mscl.CV7ContinuousBIT_System_Process_filterRateMismatch(self)
+
+    def filterStuck(self):
+        return _mscl.CV7ContinuousBIT_System_Process_filterStuck(self)
+    __swig_destroy__ = _mscl.delete_CV7ContinuousBIT_System_Process
+
+# Register CV7ContinuousBIT_System_Process in _mscl:
+_mscl.CV7ContinuousBIT_System_Process_swigregister(CV7ContinuousBIT_System_Process)
+
+class CV7ContinuousBIT_System(Bitfield):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self, *args):
+        _mscl.CV7ContinuousBIT_System_swiginit(self, _mscl.new_CV7ContinuousBIT_System(*args))
+    RESPONSE_OFFSET = _mscl.CV7ContinuousBIT_System_RESPONSE_OFFSET
+    GENERAL_FLAGS = _mscl.CV7ContinuousBIT_System_GENERAL_FLAGS
+    PROCESS_FLAGS = _mscl.CV7ContinuousBIT_System_PROCESS_FLAGS
+
+    def flags(self):
+        return _mscl.CV7ContinuousBIT_System_flags(self)
+
+    def general(self):
+        return _mscl.CV7ContinuousBIT_System_general(self)
+
+    def process(self):
+        return _mscl.CV7ContinuousBIT_System_process(self)
+    __swig_destroy__ = _mscl.delete_CV7ContinuousBIT_System
+
+# Register CV7ContinuousBIT_System in _mscl:
+_mscl.CV7ContinuousBIT_System_swigregister(CV7ContinuousBIT_System)
+
+class CV7ContinuousBIT_IMU_General(Bitfield):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self, *args):
+        _mscl.CV7ContinuousBIT_IMU_General_swiginit(self, _mscl.new_CV7ContinuousBIT_IMU_General(*args))
+    CLOCK_FAULT = _mscl.CV7ContinuousBIT_IMU_General_CLOCK_FAULT
+    COMMUNICATION_FAULT = _mscl.CV7ContinuousBIT_IMU_General_COMMUNICATION_FAULT
+    TIMING_OVERRUN = _mscl.CV7ContinuousBIT_IMU_General_TIMING_OVERRUN
+    CALIBRATION_ERROR_ACCEL = _mscl.CV7ContinuousBIT_IMU_General_CALIBRATION_ERROR_ACCEL
+    CALIBRATION_ERROR_GYRO = _mscl.CV7ContinuousBIT_IMU_General_CALIBRATION_ERROR_GYRO
+    CALIBRATION_ERROR_MAG = _mscl.CV7ContinuousBIT_IMU_General_CALIBRATION_ERROR_MAG
+
+    def flags(self):
+        return _mscl.CV7ContinuousBIT_IMU_General_flags(self)
+
+    def clockFault(self):
+        return _mscl.CV7ContinuousBIT_IMU_General_clockFault(self)
+
+    def communicationFault(self):
+        return _mscl.CV7ContinuousBIT_IMU_General_communicationFault(self)
+
+    def timingOverrun(self):
+        return _mscl.CV7ContinuousBIT_IMU_General_timingOverrun(self)
+
+    def calibrationErrorAccel(self):
+        return _mscl.CV7ContinuousBIT_IMU_General_calibrationErrorAccel(self)
+
+    def calibrationErrorGyro(self):
+        return _mscl.CV7ContinuousBIT_IMU_General_calibrationErrorGyro(self)
+
+    def calibrationErrorMag(self):
+        return _mscl.CV7ContinuousBIT_IMU_General_calibrationErrorMag(self)
+    __swig_destroy__ = _mscl.delete_CV7ContinuousBIT_IMU_General
+
+# Register CV7ContinuousBIT_IMU_General in _mscl:
+_mscl.CV7ContinuousBIT_IMU_General_swigregister(CV7ContinuousBIT_IMU_General)
+
+class CV7ContinuousBIT_IMU_Sensors(Bitfield):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self, *args):
+        _mscl.CV7ContinuousBIT_IMU_Sensors_swiginit(self, _mscl.new_CV7ContinuousBIT_IMU_Sensors(*args))
+    ACCEL_GENERAL_FAULT = _mscl.CV7ContinuousBIT_IMU_Sensors_ACCEL_GENERAL_FAULT
+    ACCEL_OVERRANGE = _mscl.CV7ContinuousBIT_IMU_Sensors_ACCEL_OVERRANGE
+    ACCEL_SELF_TEST_FAIL = _mscl.CV7ContinuousBIT_IMU_Sensors_ACCEL_SELF_TEST_FAIL
+    GYRO_GENERAL_FAULT = _mscl.CV7ContinuousBIT_IMU_Sensors_GYRO_GENERAL_FAULT
+    GYRO_OVERRANGE = _mscl.CV7ContinuousBIT_IMU_Sensors_GYRO_OVERRANGE
+    GYRO_SELF_TEST_FAIL = _mscl.CV7ContinuousBIT_IMU_Sensors_GYRO_SELF_TEST_FAIL
+    MAG_GENERAL_FAULT = _mscl.CV7ContinuousBIT_IMU_Sensors_MAG_GENERAL_FAULT
+    MAG_OVERRANGE = _mscl.CV7ContinuousBIT_IMU_Sensors_MAG_OVERRANGE
+    MAG_SELF_TEST_FAIL = _mscl.CV7ContinuousBIT_IMU_Sensors_MAG_SELF_TEST_FAIL
+    PRESSURE_GENERAL_FAULT = _mscl.CV7ContinuousBIT_IMU_Sensors_PRESSURE_GENERAL_FAULT
+    PRESSURE_OVERRANGE = _mscl.CV7ContinuousBIT_IMU_Sensors_PRESSURE_OVERRANGE
+    PRESSURE_SELF_TEST_FAIL = _mscl.CV7ContinuousBIT_IMU_Sensors_PRESSURE_SELF_TEST_FAIL
+
+    def flags(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_flags(self)
+
+    def accelGeneralFault(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_accelGeneralFault(self)
+
+    def accelOverrange(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_accelOverrange(self)
+
+    def accelSelfTestFail(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_accelSelfTestFail(self)
+
+    def gyroGeneralFault(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_gyroGeneralFault(self)
+
+    def gyroOverrange(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_gyroOverrange(self)
+
+    def gyroSelfTestFail(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_gyroSelfTestFail(self)
+
+    def magGeneralFault(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_magGeneralFault(self)
+
+    def magOverrange(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_magOverrange(self)
+
+    def magSelfTestFail(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_magSelfTestFail(self)
+
+    def pressureGeneralFault(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_pressureGeneralFault(self)
+
+    def pressureOverrange(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_pressureOverrange(self)
+
+    def pressureSelfTestFail(self):
+        return _mscl.CV7ContinuousBIT_IMU_Sensors_pressureSelfTestFail(self)
+    __swig_destroy__ = _mscl.delete_CV7ContinuousBIT_IMU_Sensors
+
+# Register CV7ContinuousBIT_IMU_Sensors in _mscl:
+_mscl.CV7ContinuousBIT_IMU_Sensors_swigregister(CV7ContinuousBIT_IMU_Sensors)
+
+class CV7ContinuousBIT_IMU(Bitfield):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self, *args):
+        _mscl.CV7ContinuousBIT_IMU_swiginit(self, _mscl.new_CV7ContinuousBIT_IMU(*args))
+    RESPONSE_OFFSET = _mscl.CV7ContinuousBIT_IMU_RESPONSE_OFFSET
+    GENERAL_FLAGS = _mscl.CV7ContinuousBIT_IMU_GENERAL_FLAGS
+    SENSORS_FLAGS = _mscl.CV7ContinuousBIT_IMU_SENSORS_FLAGS
+    FACTORY_BITS_INVALID = _mscl.CV7ContinuousBIT_IMU_FACTORY_BITS_INVALID
+
+    def flags(self):
+        return _mscl.CV7ContinuousBIT_IMU_flags(self)
+
+    def general(self):
+        return _mscl.CV7ContinuousBIT_IMU_general(self)
+
+    def sensors(self):
+        return _mscl.CV7ContinuousBIT_IMU_sensors(self)
+
+    def factoryBitsInvalid(self):
+        return _mscl.CV7ContinuousBIT_IMU_factoryBitsInvalid(self)
+    __swig_destroy__ = _mscl.delete_CV7ContinuousBIT_IMU
+
+# Register CV7ContinuousBIT_IMU in _mscl:
+_mscl.CV7ContinuousBIT_IMU_swigregister(CV7ContinuousBIT_IMU)
+
+class CV7ContinuousBIT_Filter_General(Bitfield):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self, *args):
+        _mscl.CV7ContinuousBIT_Filter_General_swiginit(self, _mscl.new_CV7ContinuousBIT_Filter_General(*args))
+    FAULT = _mscl.CV7ContinuousBIT_Filter_General_FAULT
+    TIMING_OVERRUN = _mscl.CV7ContinuousBIT_Filter_General_TIMING_OVERRUN
+    TIMING_UNDERRUN = _mscl.CV7ContinuousBIT_Filter_General_TIMING_UNDERRUN
+
+    def flags(self):
+        return _mscl.CV7ContinuousBIT_Filter_General_flags(self)
+
+    def fault(self):
+        return _mscl.CV7ContinuousBIT_Filter_General_fault(self)
+
+    def timingOverrun(self):
+        return _mscl.CV7ContinuousBIT_Filter_General_timingOverrun(self)
+
+    def timingUnderrun(self):
+        return _mscl.CV7ContinuousBIT_Filter_General_timingUnderrun(self)
+    __swig_destroy__ = _mscl.delete_CV7ContinuousBIT_Filter_General
+
+# Register CV7ContinuousBIT_Filter_General in _mscl:
+_mscl.CV7ContinuousBIT_Filter_General_swigregister(CV7ContinuousBIT_Filter_General)
+
+class CV7ContinuousBIT_Filter(Bitfield):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self, *args):
+        _mscl.CV7ContinuousBIT_Filter_swiginit(self, _mscl.new_CV7ContinuousBIT_Filter(*args))
+    RESPONSE_OFFSET = _mscl.CV7ContinuousBIT_Filter_RESPONSE_OFFSET
+    GENERAL_FLAGS = _mscl.CV7ContinuousBIT_Filter_GENERAL_FLAGS
+
+    def flags(self):
+        return _mscl.CV7ContinuousBIT_Filter_flags(self)
+
+    def general(self):
+        return _mscl.CV7ContinuousBIT_Filter_general(self)
+    __swig_destroy__ = _mscl.delete_CV7ContinuousBIT_Filter
+
+# Register CV7ContinuousBIT_Filter in _mscl:
+_mscl.CV7ContinuousBIT_Filter_swigregister(CV7ContinuousBIT_Filter)
+
+class CV7ContinuousBIT(ContinuousBIT):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self, *args):
+        _mscl.CV7ContinuousBIT_swiginit(self, _mscl.new_CV7ContinuousBIT(*args))
+
+    def system(self):
+        return _mscl.CV7ContinuousBIT_system(self)
+
+    def imu(self):
+        return _mscl.CV7ContinuousBIT_imu(self)
+
+    def filter(self):
+        return _mscl.CV7ContinuousBIT_filter(self)
+
+    def data(self):
+        return _mscl.CV7ContinuousBIT_data(self)
+
+    def as_MipDataPoints(self):
+        return _mscl.CV7ContinuousBIT_as_MipDataPoints(self)
+    __swig_destroy__ = _mscl.delete_CV7ContinuousBIT
+
+# Register CV7ContinuousBIT in _mscl:
+_mscl.CV7ContinuousBIT_swigregister(CV7ContinuousBIT)
+
 class MipSharedDataFields(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
     __repr__ = _swig_repr
@@ -6786,6 +7235,9 @@ class MipNodeFeatures(object):
     def gnssReceiverInfo(self):
         return _mscl.MipNodeFeatures_gnssReceiverInfo(self)
 
+    def supportedGnssSources(self):
+        return _mscl.MipNodeFeatures_supportedGnssSources(self)
+
     def supportedSensorRanges(self, *args):
         return _mscl.MipNodeFeatures_supportedSensorRanges(self, *args)
 
@@ -6831,6 +7283,9 @@ class MipNodeFeatures(object):
     def supportedGpioConfigurations(self):
         return _mscl.MipNodeFeatures_supportedGpioConfigurations(self)
 
+    def supportedGnssSignalConfigurations(self):
+        return _mscl.MipNodeFeatures_supportedGnssSignalConfigurations(self)
+
     def supportedDeclinationSources(self):
         return _mscl.MipNodeFeatures_supportedDeclinationSources(self)
 
@@ -6851,6 +7306,9 @@ class MipNodeFeatures(object):
 
     def supportsNorthCompensation(self):
         return _mscl.MipNodeFeatures_supportsNorthCompensation(self)
+
+    def supportedLowPassFilterChannelFields(self):
+        return _mscl.MipNodeFeatures_supportedLowPassFilterChannelFields(self)
 
 # Register MipNodeFeatures in _mscl:
 _mscl.MipNodeFeatures_swigregister(MipNodeFeatures)
@@ -7192,11 +7650,11 @@ class InertialNode(MipNode):
     def getConingAndScullingEnable(self):
         return _mscl.InertialNode_getConingAndScullingEnable(self)
 
-    def setAdvancedLowPassFilterSettings(self, data):
-        return _mscl.InertialNode_setAdvancedLowPassFilterSettings(self, data)
+    def setLowPassFilterSettings(self, data):
+        return _mscl.InertialNode_setLowPassFilterSettings(self, data)
 
-    def getAdvancedLowPassFilterSettings(self, dataDescriptors):
-        return _mscl.InertialNode_getAdvancedLowPassFilterSettings(self, dataDescriptors)
+    def getLowPassFilterSettings(self, dataDescriptors):
+        return _mscl.InertialNode_getLowPassFilterSettings(self, dataDescriptors)
 
     def setComplementaryFilterSettings(self, data):
         return _mscl.InertialNode_setComplementaryFilterSettings(self, data)
@@ -7456,6 +7914,12 @@ class InertialNode(MipNode):
     def setRelativePositionReference(self, ref):
         return _mscl.InertialNode_setRelativePositionReference(self, ref)
 
+    def getLeverArmReferenceOffset(self):
+        return _mscl.InertialNode_getLeverArmReferenceOffset(self)
+
+    def setLeverArmReferenceOffset(self, offset):
+        return _mscl.InertialNode_setLeverArmReferenceOffset(self, offset)
+
     def sendExternalSpeedMeasurementUpdate(self, tow, speed, unc):
         return _mscl.InertialNode_sendExternalSpeedMeasurementUpdate(self, tow, speed, unc)
 
@@ -7482,6 +7946,12 @@ class InertialNode(MipNode):
 
     def getEventActionStatus(self, *args):
         return _mscl.InertialNode_getEventActionStatus(self, *args)
+
+    def getNmeaMessageFormat(self):
+        return _mscl.InertialNode_getNmeaMessageFormat(self)
+
+    def setNmeaMessageFormat(self, nmeaFormats):
+        return _mscl.InertialNode_setNmeaMessageFormat(self, nmeaFormats)
 
 # Register InertialNode in _mscl:
 _mscl.InertialNode_swigregister(InertialNode)
@@ -14781,111 +15251,111 @@ class AdaptiveFilterLevels(object):
 # Register AdaptiveFilterLevels in _mscl:
 _mscl.AdaptiveFilterLevels_swigregister(AdaptiveFilterLevels)
 
-class AdvancedLowPassFilterConfig(object):
+class LowPassFilterConfig(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
     __repr__ = _swig_repr
 
     def iterator(self):
-        return _mscl.AdvancedLowPassFilterConfig_iterator(self)
+        return _mscl.LowPassFilterConfig_iterator(self)
     def __iter__(self):
         return self.iterator()
 
     def __nonzero__(self):
-        return _mscl.AdvancedLowPassFilterConfig___nonzero__(self)
+        return _mscl.LowPassFilterConfig___nonzero__(self)
 
     def __bool__(self):
-        return _mscl.AdvancedLowPassFilterConfig___bool__(self)
+        return _mscl.LowPassFilterConfig___bool__(self)
 
     def __len__(self):
-        return _mscl.AdvancedLowPassFilterConfig___len__(self)
+        return _mscl.LowPassFilterConfig___len__(self)
 
     def __getslice__(self, i, j):
-        return _mscl.AdvancedLowPassFilterConfig___getslice__(self, i, j)
+        return _mscl.LowPassFilterConfig___getslice__(self, i, j)
 
     def __setslice__(self, *args):
-        return _mscl.AdvancedLowPassFilterConfig___setslice__(self, *args)
+        return _mscl.LowPassFilterConfig___setslice__(self, *args)
 
     def __delslice__(self, i, j):
-        return _mscl.AdvancedLowPassFilterConfig___delslice__(self, i, j)
+        return _mscl.LowPassFilterConfig___delslice__(self, i, j)
 
     def __delitem__(self, *args):
-        return _mscl.AdvancedLowPassFilterConfig___delitem__(self, *args)
+        return _mscl.LowPassFilterConfig___delitem__(self, *args)
 
     def __getitem__(self, *args):
-        return _mscl.AdvancedLowPassFilterConfig___getitem__(self, *args)
+        return _mscl.LowPassFilterConfig___getitem__(self, *args)
 
     def __setitem__(self, *args):
-        return _mscl.AdvancedLowPassFilterConfig___setitem__(self, *args)
+        return _mscl.LowPassFilterConfig___setitem__(self, *args)
 
     def pop(self):
-        return _mscl.AdvancedLowPassFilterConfig_pop(self)
+        return _mscl.LowPassFilterConfig_pop(self)
 
     def append(self, x):
-        return _mscl.AdvancedLowPassFilterConfig_append(self, x)
+        return _mscl.LowPassFilterConfig_append(self, x)
 
     def empty(self):
-        return _mscl.AdvancedLowPassFilterConfig_empty(self)
+        return _mscl.LowPassFilterConfig_empty(self)
 
     def size(self):
-        return _mscl.AdvancedLowPassFilterConfig_size(self)
+        return _mscl.LowPassFilterConfig_size(self)
 
     def swap(self, v):
-        return _mscl.AdvancedLowPassFilterConfig_swap(self, v)
+        return _mscl.LowPassFilterConfig_swap(self, v)
 
     def begin(self):
-        return _mscl.AdvancedLowPassFilterConfig_begin(self)
+        return _mscl.LowPassFilterConfig_begin(self)
 
     def end(self):
-        return _mscl.AdvancedLowPassFilterConfig_end(self)
+        return _mscl.LowPassFilterConfig_end(self)
 
     def rbegin(self):
-        return _mscl.AdvancedLowPassFilterConfig_rbegin(self)
+        return _mscl.LowPassFilterConfig_rbegin(self)
 
     def rend(self):
-        return _mscl.AdvancedLowPassFilterConfig_rend(self)
+        return _mscl.LowPassFilterConfig_rend(self)
 
     def clear(self):
-        return _mscl.AdvancedLowPassFilterConfig_clear(self)
+        return _mscl.LowPassFilterConfig_clear(self)
 
     def get_allocator(self):
-        return _mscl.AdvancedLowPassFilterConfig_get_allocator(self)
+        return _mscl.LowPassFilterConfig_get_allocator(self)
 
     def pop_back(self):
-        return _mscl.AdvancedLowPassFilterConfig_pop_back(self)
+        return _mscl.LowPassFilterConfig_pop_back(self)
 
     def erase(self, *args):
-        return _mscl.AdvancedLowPassFilterConfig_erase(self, *args)
+        return _mscl.LowPassFilterConfig_erase(self, *args)
 
     def __init__(self, *args):
-        _mscl.AdvancedLowPassFilterConfig_swiginit(self, _mscl.new_AdvancedLowPassFilterConfig(*args))
+        _mscl.LowPassFilterConfig_swiginit(self, _mscl.new_LowPassFilterConfig(*args))
 
     def push_back(self, x):
-        return _mscl.AdvancedLowPassFilterConfig_push_back(self, x)
+        return _mscl.LowPassFilterConfig_push_back(self, x)
 
     def front(self):
-        return _mscl.AdvancedLowPassFilterConfig_front(self)
+        return _mscl.LowPassFilterConfig_front(self)
 
     def back(self):
-        return _mscl.AdvancedLowPassFilterConfig_back(self)
+        return _mscl.LowPassFilterConfig_back(self)
 
     def assign(self, n, x):
-        return _mscl.AdvancedLowPassFilterConfig_assign(self, n, x)
+        return _mscl.LowPassFilterConfig_assign(self, n, x)
 
     def resize(self, *args):
-        return _mscl.AdvancedLowPassFilterConfig_resize(self, *args)
+        return _mscl.LowPassFilterConfig_resize(self, *args)
 
     def insert(self, *args):
-        return _mscl.AdvancedLowPassFilterConfig_insert(self, *args)
+        return _mscl.LowPassFilterConfig_insert(self, *args)
 
     def reserve(self, n):
-        return _mscl.AdvancedLowPassFilterConfig_reserve(self, n)
+        return _mscl.LowPassFilterConfig_reserve(self, n)
 
     def capacity(self):
-        return _mscl.AdvancedLowPassFilterConfig_capacity(self)
-    __swig_destroy__ = _mscl.delete_AdvancedLowPassFilterConfig
+        return _mscl.LowPassFilterConfig_capacity(self)
+    __swig_destroy__ = _mscl.delete_LowPassFilterConfig
 
-# Register AdvancedLowPassFilterConfig in _mscl:
-_mscl.AdvancedLowPassFilterConfig_swigregister(AdvancedLowPassFilterConfig)
+# Register LowPassFilterConfig in _mscl:
+_mscl.LowPassFilterConfig_swigregister(LowPassFilterConfig)
 
 class AidingMeasurementSourceOptions(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
@@ -15204,6 +15674,326 @@ class GeographicSources(object):
 
 # Register GeographicSources in _mscl:
 _mscl.GeographicSources_swigregister(GeographicSources)
+
+class GnssSources(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def iterator(self):
+        return _mscl.GnssSources_iterator(self)
+    def __iter__(self):
+        return self.iterator()
+
+    def __nonzero__(self):
+        return _mscl.GnssSources___nonzero__(self)
+
+    def __bool__(self):
+        return _mscl.GnssSources___bool__(self)
+
+    def __len__(self):
+        return _mscl.GnssSources___len__(self)
+
+    def __getslice__(self, i, j):
+        return _mscl.GnssSources___getslice__(self, i, j)
+
+    def __setslice__(self, *args):
+        return _mscl.GnssSources___setslice__(self, *args)
+
+    def __delslice__(self, i, j):
+        return _mscl.GnssSources___delslice__(self, i, j)
+
+    def __delitem__(self, *args):
+        return _mscl.GnssSources___delitem__(self, *args)
+
+    def __getitem__(self, *args):
+        return _mscl.GnssSources___getitem__(self, *args)
+
+    def __setitem__(self, *args):
+        return _mscl.GnssSources___setitem__(self, *args)
+
+    def pop(self):
+        return _mscl.GnssSources_pop(self)
+
+    def append(self, x):
+        return _mscl.GnssSources_append(self, x)
+
+    def empty(self):
+        return _mscl.GnssSources_empty(self)
+
+    def size(self):
+        return _mscl.GnssSources_size(self)
+
+    def swap(self, v):
+        return _mscl.GnssSources_swap(self, v)
+
+    def begin(self):
+        return _mscl.GnssSources_begin(self)
+
+    def end(self):
+        return _mscl.GnssSources_end(self)
+
+    def rbegin(self):
+        return _mscl.GnssSources_rbegin(self)
+
+    def rend(self):
+        return _mscl.GnssSources_rend(self)
+
+    def clear(self):
+        return _mscl.GnssSources_clear(self)
+
+    def get_allocator(self):
+        return _mscl.GnssSources_get_allocator(self)
+
+    def pop_back(self):
+        return _mscl.GnssSources_pop_back(self)
+
+    def erase(self, *args):
+        return _mscl.GnssSources_erase(self, *args)
+
+    def __init__(self, *args):
+        _mscl.GnssSources_swiginit(self, _mscl.new_GnssSources(*args))
+
+    def push_back(self, x):
+        return _mscl.GnssSources_push_back(self, x)
+
+    def front(self):
+        return _mscl.GnssSources_front(self)
+
+    def back(self):
+        return _mscl.GnssSources_back(self)
+
+    def assign(self, n, x):
+        return _mscl.GnssSources_assign(self, n, x)
+
+    def resize(self, *args):
+        return _mscl.GnssSources_resize(self, *args)
+
+    def insert(self, *args):
+        return _mscl.GnssSources_insert(self, *args)
+
+    def reserve(self, n):
+        return _mscl.GnssSources_reserve(self, n)
+
+    def capacity(self):
+        return _mscl.GnssSources_capacity(self)
+    __swig_destroy__ = _mscl.delete_GnssSources
+
+# Register GnssSources in _mscl:
+_mscl.GnssSources_swigregister(GnssSources)
+
+class GnssSignalConfigOptions(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def iterator(self):
+        return _mscl.GnssSignalConfigOptions_iterator(self)
+    def __iter__(self):
+        return self.iterator()
+
+    def __nonzero__(self):
+        return _mscl.GnssSignalConfigOptions___nonzero__(self)
+
+    def __bool__(self):
+        return _mscl.GnssSignalConfigOptions___bool__(self)
+
+    def __len__(self):
+        return _mscl.GnssSignalConfigOptions___len__(self)
+    def __iter__(self):
+        return self.key_iterator()
+    def iterkeys(self):
+        return self.key_iterator()
+    def itervalues(self):
+        return self.value_iterator()
+    def iteritems(self):
+        return self.iterator()
+
+    def __getitem__(self, key):
+        return _mscl.GnssSignalConfigOptions___getitem__(self, key)
+
+    def __delitem__(self, key):
+        return _mscl.GnssSignalConfigOptions___delitem__(self, key)
+
+    def has_key(self, key):
+        return _mscl.GnssSignalConfigOptions_has_key(self, key)
+
+    def keys(self):
+        return _mscl.GnssSignalConfigOptions_keys(self)
+
+    def values(self):
+        return _mscl.GnssSignalConfigOptions_values(self)
+
+    def items(self):
+        return _mscl.GnssSignalConfigOptions_items(self)
+
+    def __contains__(self, key):
+        return _mscl.GnssSignalConfigOptions___contains__(self, key)
+
+    def key_iterator(self):
+        return _mscl.GnssSignalConfigOptions_key_iterator(self)
+
+    def value_iterator(self):
+        return _mscl.GnssSignalConfigOptions_value_iterator(self)
+
+    def __setitem__(self, *args):
+        return _mscl.GnssSignalConfigOptions___setitem__(self, *args)
+
+    def asdict(self):
+        return _mscl.GnssSignalConfigOptions_asdict(self)
+
+    def __init__(self, *args):
+        _mscl.GnssSignalConfigOptions_swiginit(self, _mscl.new_GnssSignalConfigOptions(*args))
+
+    def empty(self):
+        return _mscl.GnssSignalConfigOptions_empty(self)
+
+    def size(self):
+        return _mscl.GnssSignalConfigOptions_size(self)
+
+    def swap(self, v):
+        return _mscl.GnssSignalConfigOptions_swap(self, v)
+
+    def begin(self):
+        return _mscl.GnssSignalConfigOptions_begin(self)
+
+    def end(self):
+        return _mscl.GnssSignalConfigOptions_end(self)
+
+    def rbegin(self):
+        return _mscl.GnssSignalConfigOptions_rbegin(self)
+
+    def rend(self):
+        return _mscl.GnssSignalConfigOptions_rend(self)
+
+    def clear(self):
+        return _mscl.GnssSignalConfigOptions_clear(self)
+
+    def get_allocator(self):
+        return _mscl.GnssSignalConfigOptions_get_allocator(self)
+
+    def count(self, x):
+        return _mscl.GnssSignalConfigOptions_count(self, x)
+
+    def erase(self, *args):
+        return _mscl.GnssSignalConfigOptions_erase(self, *args)
+
+    def find(self, x):
+        return _mscl.GnssSignalConfigOptions_find(self, x)
+
+    def lower_bound(self, x):
+        return _mscl.GnssSignalConfigOptions_lower_bound(self, x)
+
+    def upper_bound(self, x):
+        return _mscl.GnssSignalConfigOptions_upper_bound(self, x)
+    __swig_destroy__ = _mscl.delete_GnssSignalConfigOptions
+
+# Register GnssSignalConfigOptions in _mscl:
+_mscl.GnssSignalConfigOptions_swigregister(GnssSignalConfigOptions)
+
+class NmeaMessageFormats(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def iterator(self):
+        return _mscl.NmeaMessageFormats_iterator(self)
+    def __iter__(self):
+        return self.iterator()
+
+    def __nonzero__(self):
+        return _mscl.NmeaMessageFormats___nonzero__(self)
+
+    def __bool__(self):
+        return _mscl.NmeaMessageFormats___bool__(self)
+
+    def __len__(self):
+        return _mscl.NmeaMessageFormats___len__(self)
+
+    def __getslice__(self, i, j):
+        return _mscl.NmeaMessageFormats___getslice__(self, i, j)
+
+    def __setslice__(self, *args):
+        return _mscl.NmeaMessageFormats___setslice__(self, *args)
+
+    def __delslice__(self, i, j):
+        return _mscl.NmeaMessageFormats___delslice__(self, i, j)
+
+    def __delitem__(self, *args):
+        return _mscl.NmeaMessageFormats___delitem__(self, *args)
+
+    def __getitem__(self, *args):
+        return _mscl.NmeaMessageFormats___getitem__(self, *args)
+
+    def __setitem__(self, *args):
+        return _mscl.NmeaMessageFormats___setitem__(self, *args)
+
+    def pop(self):
+        return _mscl.NmeaMessageFormats_pop(self)
+
+    def append(self, x):
+        return _mscl.NmeaMessageFormats_append(self, x)
+
+    def empty(self):
+        return _mscl.NmeaMessageFormats_empty(self)
+
+    def size(self):
+        return _mscl.NmeaMessageFormats_size(self)
+
+    def swap(self, v):
+        return _mscl.NmeaMessageFormats_swap(self, v)
+
+    def begin(self):
+        return _mscl.NmeaMessageFormats_begin(self)
+
+    def end(self):
+        return _mscl.NmeaMessageFormats_end(self)
+
+    def rbegin(self):
+        return _mscl.NmeaMessageFormats_rbegin(self)
+
+    def rend(self):
+        return _mscl.NmeaMessageFormats_rend(self)
+
+    def clear(self):
+        return _mscl.NmeaMessageFormats_clear(self)
+
+    def get_allocator(self):
+        return _mscl.NmeaMessageFormats_get_allocator(self)
+
+    def pop_back(self):
+        return _mscl.NmeaMessageFormats_pop_back(self)
+
+    def erase(self, *args):
+        return _mscl.NmeaMessageFormats_erase(self, *args)
+
+    def __init__(self, *args):
+        _mscl.NmeaMessageFormats_swiginit(self, _mscl.new_NmeaMessageFormats(*args))
+
+    def push_back(self, x):
+        return _mscl.NmeaMessageFormats_push_back(self, x)
+
+    def front(self):
+        return _mscl.NmeaMessageFormats_front(self)
+
+    def back(self):
+        return _mscl.NmeaMessageFormats_back(self)
+
+    def assign(self, n, x):
+        return _mscl.NmeaMessageFormats_assign(self, n, x)
+
+    def resize(self, *args):
+        return _mscl.NmeaMessageFormats_resize(self, *args)
+
+    def insert(self, *args):
+        return _mscl.NmeaMessageFormats_insert(self, *args)
+
+    def reserve(self, n):
+        return _mscl.NmeaMessageFormats_reserve(self, n)
+
+    def capacity(self):
+        return _mscl.NmeaMessageFormats_capacity(self)
+    __swig_destroy__ = _mscl.delete_NmeaMessageFormats
+
+# Register NmeaMessageFormats in _mscl:
+_mscl.NmeaMessageFormats_swigregister(NmeaMessageFormats)
 
 class GpioPinModeOptions(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
