@@ -1,3 +1,5 @@
+from ABDataPoint import ABDataPoint
+
 class StateMachine:
     def __init__(self, state):
         self.state = None
@@ -6,7 +8,7 @@ class StateMachine:
     def create_state(self, state):
         return state(self.state)
 
-    def process_data_point(self, data_point):
+    def process_data_point(self, data_point: ABDataPoint):
         self.state.process(self, data_point)
 
     def to_state(self, new_state):

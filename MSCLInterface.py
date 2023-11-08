@@ -1,6 +1,7 @@
 from io import TextIOWrapper
 import threading
 from collections import deque
+from ABDataPoint import ABDataPoint
 import mscl
 
 # TOOD (Before every launch): Make sure this value is correct
@@ -60,28 +61,30 @@ class MSCLInterface:
         while self.running:
             # get all the data packets from the node with a timeout of the
             # polling rate in milliseconds
-            packets = self.node.getDataPackets(self.polling_rate)
+            packets: mscl.MipDataPackets = self.node.getDataPackets(self.polling_rate)
 
-
+            packet: mscl.MipDataPacket
             for packet in packets:
-                if (have_raw == False):
+                # Log the headers to a file if we haven't already
+                if (not have_raw):
+                    data_point: mscl.MipDataPoint
                     for data_point in packet.data():
                         if (data_point.channelName() [:3] != "est"):
                             self.print_headers(packet,self.raw_data_logfile)
                             have_raw = True
                         break
 
-                if (have_est == False):
+                if (not have_est):
                     for data_point in packet.data():
                         if (data_point.channelName() [:3] == "est"):
                             self.print_headers(packet, self.est_data_logfile)
                             have_est = True
                         break
 
-                if (have_est == False) or (have_raw == False):
+                if (not have_est) or (not have_raw):
                     break
 
-               # write the acceleration and time data to the data buffer
+                # write the acceleration and time data to the data buffer
                 # also write all other data to file
                 self._write_data_to_file(packet)
 
@@ -91,7 +94,7 @@ class MSCLInterface:
             logfile.write("\n")
 
 
-    def pop_data_point(self):
+    def pop_data_point(self) -> ABDataPoint:
         """Pops a data point off of the left of the databuffer deque"""
         try:
             return self.databuffer.popleft()
@@ -99,30 +102,33 @@ class MSCLInterface:
             return None
 
 
-    def _write_data_to_file(self, packet):
-        # this data object is used to store accelerate and time data
-        data_object = {}
+    def _write_data_to_file(self, packet: mscl.MipDataPacket):
+        data_object: ABDataPoint = {}
 
-        logfile = self.raw_data_logfile
+        data_object.timestamp = packet.collectedTimestamp().nanoseconds()
 
+        isEst = packet.data()[0].channelName() [:3] == "est"
+
+        logfile = self.est_data_logfile if isEst else self.raw_data_logfile
+
+        # TODO: TEST THIS with the imu
+        data_point: mscl.MipDataPoint
         for data_point in packet.data():
 
             # get the channel data
-            if data_point.channelName() == "estLinearAccelZ":
-                accel = data_point.as_float()
-                if UPSIDE_DOWN:
-                    accel = -accel
-                data_object["accel"] = accel
-                data_object["timestamp"] = packet.collectedTimestamp().nanoseconds()
+            match data_point.channelName():
+                case "estLinearAccelX":
+                    accel = data_point.as_float()
+                    if UPSIDE_DOWN:
+                        accel = -accel
+                    data_object.accel = accel
+                case "estPressureAlt":
+                    data_object.altitude = data_point.as_float()
 
             # if the data object is not empty
             if data_object:
-                # send the accelerating and time data to the databuffer
+                # send the processed data to the databuffer
                 self.databuffer.append(data_object)
-
-            if (data_point.channelName() [:3] == "est"):
-                logfile = self.est_data_logfile
-        
 
             logfile.write(str(data_point.as_float())+",")
         logfile.write("\n")

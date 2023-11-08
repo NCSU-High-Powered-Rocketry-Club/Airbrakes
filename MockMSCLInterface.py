@@ -1,3 +1,5 @@
+from ABDataPoint import ABDataPoint
+
 class MockMSCLInterface:
     def __init__(self):
         self.iter = 0
@@ -5,18 +7,19 @@ class MockMSCLInterface:
     def start_logging_loop_thread(self):
         return
     
-    def pop_data_point(self):
+    def pop_data_point(self) -> ABDataPoint:
         self.iter += 1
         import time
         time.sleep(0.001)
+        
+        res = ABDataPoint()
+
         if (self.iter < 100):
-            return {
-                'accel': 0
-            }
+            res.accel = 0
         else:
-            return {
-                'accel': -8
-            }
+            res.accel = -8
+
+        return res
 
     def stop_logging_loop(self):
         return

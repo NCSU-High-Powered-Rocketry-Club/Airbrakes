@@ -8,6 +8,7 @@
 import time
 
 from StateMachine import StateMachine
+from ABDataPoint import ABDataPoint
 
 LAUNCH_TO_TEST_TIME = 5 # Time from liftoff detected to test start
 TEST_LENGTH_TIME = 4 # Length of the test
@@ -65,9 +66,9 @@ class StandbyState:
         return
 
 
-    def process(self, state_machine: StateMachine, data_point):
+    def process(self, state_machine: StateMachine, data_point: ABDataPoint):
         # Get the acceleration
-        accel = data_point['accel']
+        accel = data_point.accel
 
         # Add it to the spot in the array, so that we can
         # calculate the rolling average
@@ -92,11 +93,20 @@ class StandbyState:
             state_machine.to_state(LiftoffState)
 
 
+class ControlState:
+    """ Where we actually do the control loop """
+    def __init__(self, old_state):
+        self.start_time = time.time()
+
+    def process(self, state_machine: StateMachine, data_point: ABDataPoint):
+        # TODO: Implement
+        pass
+
 class LiftoffState:
     def __init__(self, old_state):
         self.start_time = time.time()
 
-    def process(self, state_machine: StateMachine, data_point):
+    def process(self, state_machine: StateMachine, data_point: ABDataPoint):
         current_time = time.time()
 
         # print(f"time to go {LAUNCH_TO_TEST_TIME - (current_time - self.start_time)}")
@@ -109,7 +119,7 @@ class TestState:
         set_degrees(SERVO_ON_ANGLE)
         self.start_time = time.time()
 
-    def process(self, state_machine: StateMachine, data_point):
+    def process(self, state_machine: StateMachine, data_point: ABDataPoint):
         current_time = time.time()
 
         if current_time - self.start_time > TEST_LENGTH_TIME:
@@ -120,7 +130,7 @@ class FreefallState:
     def __init__(self, old_state):
         set_degrees(SERVO_OFF_ANGLE)
     
-    def process(self, state_machine: StateMachine, data_point):
+    def process(self, state_machine: StateMachine, data_point: ABDataPoint):
         return
 
 
