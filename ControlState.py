@@ -46,6 +46,8 @@ class ControlState:
         
         # timestamp is in ns, convert to seconds
         delta_time = (data_point.timestamp - self.last_dp.timestamp) / 1e9
+        if (delta_time == 0):
+            delta_time = 0.01 # TODO: this shouldn't be needed once we have a real model
 
         self.velocity = (data_point.altitude - self.last_dp.altitude) / delta_time
 

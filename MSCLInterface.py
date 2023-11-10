@@ -106,7 +106,8 @@ class MSCLInterface:
 
 
     def _write_data_to_file(self, packet: mscl.MipDataPacket):
-        data_object: ABDataPoint = {}
+        data_object: ABDataPoint = ABDataPoint
+        data_object.altitude = None
 
         data_object.timestamp = packet.collectedTimestamp().nanoseconds()
 
