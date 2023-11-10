@@ -1,5 +1,5 @@
 class Servo:
-    command: float # 0 to 1
+    command: float = 0.0 # 0 to 1
     
     def __init__(self, servoPin, minDuty, maxDuty):
         self.servoPin = servoPin
@@ -28,9 +28,9 @@ class Servo:
 
     def set_command(self, command):
         if command > 1:
-            command = 1
+            command = 1.0
         if command < 0:
-            command = 0
+            command = 0.0
 
         print(f"Set servo command to {command:.3}")
         self.command = command

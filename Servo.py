@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 
 class Servo:
-    control: float
+    command: float = 0.0
     
     def __init__(self, servoPin, minDuty, maxDuty):
         self.servoPin = servoPin
@@ -43,4 +43,4 @@ class Servo:
     def set_command(self, command):
         print(f"Set servo command to {command:.3}")
         self.command = command
-        self.set_degrees(command * 180) # TODO make good
+        self.set_degrees(command * 180) # TODO make work and clamp

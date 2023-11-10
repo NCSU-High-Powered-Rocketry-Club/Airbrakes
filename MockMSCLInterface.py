@@ -1,5 +1,7 @@
 import numpy as np
 
+from ServoFactory import servo
+
 from ABDataPoint import ABDataPoint
 
 '''
@@ -58,7 +60,7 @@ class RocketModel1D:
       self.time += self.dt
     
     def sim_to_apogee(self):
-      iter = 0;
+      iter = 0
       self.heights = []
       self.times = []
 
@@ -76,10 +78,10 @@ class RocketModel1D:
 
 # TODO: TUNE
 rkt_mass = 19     #kg
-rkt_area = 0.1    #m Cross sectional area
+rkt_area = 0.018    #m Cross sectional area
 Cd = 0.6         #drag coefficient ~1.0 if airbrakes
 
-HOLD_TIME = 1 # Time from start of sim to liftoff
+HOLD_TIME = 100 # Time from start of sim to liftoff
 
 # test_rock = rocket_model_1D(rkt_mass, rxt_area, Cd)
 
@@ -88,6 +90,7 @@ class MockMSCLInterface:
     Mocks the IMU with a 1D model
     """
     model: RocketModel1D 
+    last_time: int = 0
     
     def __init__(self):
         self.model = RocketModel1D(rkt_mass, rkt_area, Cd)
@@ -117,6 +120,7 @@ class MockMSCLInterface:
             res.altitude = self.model.state[0]
 
         print(f"{(res.timestamp / 1e9) : 8.3} {res.accel:8.3} {res.altitude:.4}")
+        self.last_time = res.timestamp
         return res
 
     def stop_logging_loop(self):

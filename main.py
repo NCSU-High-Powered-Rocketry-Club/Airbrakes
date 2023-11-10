@@ -7,7 +7,8 @@
 
 import time
 
-from imports import interface, servo
+from MSCLInterfaceFactory import interface
+from ServoFactory import servo
 
 from StateMachine import StateMachine
 from ControlState import ControlState
@@ -15,7 +16,6 @@ from ControlState import ControlState
 from ABDataPoint import ABDataPoint
 
 MOTOR_BURN_TIME = 2 # Time from liftoff detected to control start
-TEST_LENGTH_TIME = 4 # Length of the test
 
 # these angles represent open and closed for the airbrakes, they are arbitrary
 SERVO_OFF_ANGLE = 84.5
@@ -73,30 +73,15 @@ class LiftoffState:
     During motor burn
     """
     def __init__(self, old_state):
-        self.start_time = time.time()
+        self.start_time = interface.last_time
 
     def process(self, state_machine: StateMachine, data_point: ABDataPoint):
-        current_time = time.time()
+        current_time = interface.last_time
 
         # print(f"time to go {MOTOR_BURN_TIME - (current_time - self.start_time)}")
-        if current_time - self.start_time > MOTOR_BURN_TIME:
-            state_machine.to_state(TestState)
+        if current_time - self.start_time > MOTOR_BURN_TIME * 1e9:
+            # state_machine.to_state(TestState)
             state_machine.to_state(ControlState)
-
-
-class TestState:
-    """
-    Test deploy airbrakes for a few seconds
-    """
-    def __init__(self, old_state):
-        servo.set_degrees(SERVO_ON_ANGLE)
-        self.start_time = time.time()
-
-    def process(self, state_machine: StateMachine, data_point: ABDataPoint):
-        current_time = time.time()
-
-        if current_time - self.start_time > TEST_LENGTH_TIME:
-            state_machine.to_state(FreefallState)
 
 
 def main():

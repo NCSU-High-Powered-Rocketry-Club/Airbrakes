@@ -9,7 +9,7 @@ UPSIDE_DOWN = True
 
 class MSCLInterface:
     """
-    Thie MSCL interface is used to interact with the data collected by the
+    The MSCL interface is used to interact with the data collected by the
     Parker-LORD 3DMCX5-AR.
     """
     def __init__ ( self, port, raw_data_logfile: TextIOWrapper, est_data_logfile: TextIOWrapper):
@@ -26,6 +26,7 @@ class MSCLInterface:
         # rate in which we poll date  in miliseconds (1/(Hz)*1000)
         self.polling_rate = int(1/(100)*1000)
 
+        self.last_time = 0
 
 
     def stop_logging_loop(self):
@@ -97,7 +98,9 @@ class MSCLInterface:
     def pop_data_point(self) -> ABDataPoint:
         """Pops a data point off of the left of the databuffer deque"""
         try:
-            return self.databuffer.popleft()
+            ret: ABDataPoint = self.databuffer.popleft()
+            self.last_time = ret.timestamp
+            return ret
         except IndexError:
             return None
 

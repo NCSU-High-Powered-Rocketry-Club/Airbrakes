@@ -1,5 +1,7 @@
-from imports import interface, servo 
 import time
+
+from ServoFactory import servo
+
 from StateMachine import StateMachine
 from ABDataPoint import ABDataPoint
 
@@ -50,8 +52,10 @@ class ControlState:
         # PID LOGIC
         predicted_apogee = self.predict_apogee()
         error = predicted_apogee - self.TARGET_APOGEE
-        print(f"{predicted_apogee:.5} {self.TARGET_APOGEE} {error}")
         control = self.pid.process(error, data_point.timestamp - self.last_dp.timestamp)
+        control = min(1, max(0, control)) * 1.0
+        
+        print(f"PID: {predicted_apogee:.5} {self.TARGET_APOGEE} {error} {data_point.altitude} {self.velocity} {control}")
         servo.set_command(control) # TODO
             
         self.last_dp = data_point
