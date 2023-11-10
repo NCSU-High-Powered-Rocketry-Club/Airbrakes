@@ -7,55 +7,30 @@
 
 import time
 
+from imports import interface, servo
+
 from StateMachine import StateMachine
+from ControlState import ControlState
+
 from ABDataPoint import ABDataPoint
 
-LAUNCH_TO_TEST_TIME = 5 # Time from liftoff detected to test start
+MOTOR_BURN_TIME = 2 # Time from liftoff detected to control start
 TEST_LENGTH_TIME = 4 # Length of the test
 
 # these angles represent open and closed for the airbrakes, they are arbitrary
 SERVO_OFF_ANGLE = 84.5
 SERVO_ON_ANGLE = 164.5
 
-# this is the pin that the servo's data wire is plugged into
-SERVO_PIN = 32
-
-
-# https://raspberrypi.stackexchange.com/questions/5100/detect-that-a-python-program-is-running-on-the-pi
-def is_raspberrypi():
-    import io
-
-    try:
-        with io.open('/sys/firmware/devicetree/base/model', 'r') as m:
-            if 'raspberry pi' in m.read().lower(): return True
-    except Exception: pass
-    return False
-
-# Set up mocking to allow us to test code even if we aren't running on a pi
-# This feeds fake data to the flight software when we don't have
-# IMU, servos, etc connected
-if is_raspberrypi():
-    # We are running on a pi
-    from MSCLInterface import MSCLInterface
-    interface = MSCLInterface("/dev/ttyACM0", open("./logs/rawLORDlog.csv", "w"),  open("./logs/estLORDlog.csv", "w"))
-
-    from Servo import Servo
-else:
-    # We are not running on a pi, mock the IMU
-    from MockMSCLInterface import MockMSCLInterface
-    interface = MockMSCLInterface()
-
-    # Mock the servo
-    from MockServo import Servo
-
-
 class StandbyState:
+    """
+    On the launch pad
+    """
     AVERAGE_COUNT = 250
     # require an acceleration of 5m/s^2
     ACCELERATION_REQUIREMENT = 5
 
     def __init__(self, old_state):
-        set_degrees(SERVO_OFF_ANGLE)
+        servo.set_degrees(SERVO_OFF_ANGLE)
 
         # We create an array to store the last n accelerations
         # in order to find the moving average.
@@ -93,30 +68,28 @@ class StandbyState:
             state_machine.to_state(LiftoffState)
 
 
-class ControlState:
-    """ Where we actually do the control loop """
-    def __init__(self, old_state):
-        self.start_time = time.time()
-
-    def process(self, state_machine: StateMachine, data_point: ABDataPoint):
-        # TODO: Implement
-        pass
-
 class LiftoffState:
+    """
+    During motor burn
+    """
     def __init__(self, old_state):
         self.start_time = time.time()
 
     def process(self, state_machine: StateMachine, data_point: ABDataPoint):
         current_time = time.time()
 
-        # print(f"time to go {LAUNCH_TO_TEST_TIME - (current_time - self.start_time)}")
-        if current_time - self.start_time > LAUNCH_TO_TEST_TIME:
+        # print(f"time to go {MOTOR_BURN_TIME - (current_time - self.start_time)}")
+        if current_time - self.start_time > MOTOR_BURN_TIME:
             state_machine.to_state(TestState)
+            state_machine.to_state(ControlState)
 
 
 class TestState:
+    """
+    Test deploy airbrakes for a few seconds
+    """
     def __init__(self, old_state):
-        set_degrees(SERVO_ON_ANGLE)
+        servo.set_degrees(SERVO_ON_ANGLE)
         self.start_time = time.time()
 
     def process(self, state_machine: StateMachine, data_point: ABDataPoint):
@@ -126,29 +99,10 @@ class TestState:
             state_machine.to_state(FreefallState)
 
 
-class FreefallState:
-    def __init__(self, old_state):
-        set_degrees(SERVO_OFF_ANGLE)
-    
-    def process(self, state_machine: StateMachine, data_point: ABDataPoint):
-        return
-
-
-# TODO (After launch): There's a better way to do this, but this has been tested and works
-servo: Servo
-def set_degrees(deg):
-    global servo
-    servo.set_degrees(deg)
-
-
 def main():
     interface.start_logging_loop_thread()
 
     print("started logging loop")
-
-    global servo
-    # Numbers from trial and error
-    servo = Servo(SERVO_PIN, 3.5, 11.5)
 
     #servo.set_degrees(SERVO_OFF_ANGLE)
 

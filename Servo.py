@@ -1,6 +1,8 @@
 import RPi.GPIO as GPIO
 
 class Servo:
+    control: float
+    
     def __init__(self, servoPin, minDuty, maxDuty):
         self.servoPin = servoPin
         GPIO.setwarnings(False)			#disable warnings
@@ -37,3 +39,8 @@ class Servo:
         print(f"Set servo angle {deg}")
         print(self.degrees_to_pos(deg))
         self.pi_pwm.ChangeDutyCycle(self.degrees_to_pos(deg))
+
+    def set_command(self, command):
+        print(f"Set servo command to {command:.3}")
+        self.command = command
+        self.set_degrees(command * 180) # TODO make good
