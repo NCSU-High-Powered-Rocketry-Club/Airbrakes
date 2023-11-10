@@ -118,15 +118,17 @@ class MSCLInterface:
         data_point: mscl.MipDataPoint
         for data_point in packet.data():
 
-            # get the channel data
-            match data_point.channelName():
-                case "estLinearAccelX":
-                    accel = data_point.as_float()
-                    if UPSIDE_DOWN:
-                        accel = -accel
-                    data_object.accel = accel
-                case "estPressureAlt":
-                    data_object.altitude = data_point.as_float()
+            # get the channel dat
+            # TODO: Update the pi to 3.10 so we can use a match statement
+            channel = data_point.channelName()
+
+            if channel == "estLinearAccelX":
+                accel = data_point.as_float()
+                if UPSIDE_DOWN:
+                    accel = -accel
+                data_object.accel = accel
+            elif channel == "estPressureAlt":
+                data_object.altitude = data_point.as_float()
 
             # if the data object is not empty
             if data_object:
