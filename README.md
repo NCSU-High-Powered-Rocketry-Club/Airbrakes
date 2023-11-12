@@ -6,3 +6,12 @@ The primary device we are using for data collection is the Parker-LORD 3DMCX5-AR
 Here is the [MSCL Github Repository](https://github.com/LORD-MicroStrain/MSCL) needed to interact with MSCL.
 
 Here is the documentation for the [MSCL API](https://lord-microstrain.github.io/MSCL/Documentation/MSCL%20API%20Documentation/index.html).
+
+# Usage
+
+To start airbrakes on the rocket run:
+```bash
+python3 main.py
+```
+
+To run locally with mocking, run `python3 main.py MockAll`. If you only want to mock parts of the airbrakes (e.g. for a [HWIL](https://en.wikipedia.org/wiki/Hardware-in-the-loop_simulation) test), run with `MockIMU` or `MockServo` instead.
