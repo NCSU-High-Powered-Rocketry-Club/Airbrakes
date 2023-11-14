@@ -2,7 +2,7 @@ from io import TextIOWrapper
 import threading
 from collections import deque
 from ..data import ABDataPoint
-import mscl
+from . import mscl
 
 # TOOD (Before every launch): Make sure this value is correct
 UPSIDE_DOWN = True
