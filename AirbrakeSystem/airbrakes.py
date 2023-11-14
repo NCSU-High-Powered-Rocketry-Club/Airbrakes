@@ -18,6 +18,8 @@ class Airbrakes:
 
     def __init__(self, mock_servo=False, mock_imu=False):
 
+        self.ready_to_shutdown = False
+
         if mock_servo:
             from .mock import MockServoInterface as ServoInterface
         else:

@@ -134,7 +134,7 @@ class ControlState(AirbrakeState):
 
         # TODO: make a safer check for apogee
         if self.velocity < 0:
-            quit()
+            self.airbrakes.ready_to_shutdown = True
             # Airbrakes.to_state(FreefallState)
 
     def predict_apogee(self):

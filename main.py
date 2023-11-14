@@ -21,11 +21,13 @@ args = parser.parse_args()
 def main(args):
     airbrakes = Airbrakes(args.mock_servo, args.mock_imu)
 
-    while True:
+    while not airbrakes.ready_to_shutdown:
         try:
             airbrakes.update()
         except KeyboardInterrupt:
             break
+
+    airbrakes.shutdown()
 
 
 if __name__ == "__main__":
