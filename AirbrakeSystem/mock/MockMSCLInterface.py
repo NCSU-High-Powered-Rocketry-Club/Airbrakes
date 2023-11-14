@@ -96,7 +96,7 @@ class MSCLInterface:
     model: RocketModel1D
     last_time: int = 0
 
-    def __init__(self, port, raw_data_logfile, est_data_logfile, servo):
+    def __init__(self, servo):
         """Mock constructor for MSCL interface
 
         Args:

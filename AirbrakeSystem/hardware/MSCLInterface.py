@@ -14,7 +14,7 @@ class MSCLInterface:
     Parker-LORD 3DMCX5-AR.
     """
 
-    def __init__(self, port, raw_data_logfile: TextIOWrapper, est_data_logfile: TextIOWrapper, servo):
+    def __init__(self, port, raw_data_logfile: TextIOWrapper, est_data_logfile: TextIOWrapper):
         # creating data node
         self.connection = mscl.Connection.Serial(port)
         self.node = mscl.InertialNode(self.connection)

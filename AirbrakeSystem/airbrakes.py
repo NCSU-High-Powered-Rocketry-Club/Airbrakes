@@ -25,24 +25,26 @@ class Airbrakes:
         else:
             from .hardware import ServoInterface
 
+        self.servo = ServoInterface.Servo(self.SERVO_PIN, 3.5, 11.5)
+
         if mock_imu:
             from .mock import MockMSCLInterface as MSCLInterface
+
+            self.interface = MSCLInterface.MSCLInterface(self.servo)
+
         else:
             from .hardware import MSCLInterface
 
-        self.servo = ServoInterface.Servo(self.SERVO_PIN, 3.5, 11.5)
+            now = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
 
-        now = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
+            log_folder = Path("./logs")
+            log_folder.mkdir(parents=True, exist_ok=True)
 
-        log_folder = Path("./logs")
-        log_folder.mkdir(parents=True, exist_ok=True)
-
-        self.interface = MSCLInterface.MSCLInterface(
-            "/dev/ttyACM0",
-            open(f"./logs/{now}_rawLORDlog.csv", "w+"),
-            open(f"./logs/{now}_estLORDlog.csv", "w+"),
-            self.servo
-        )
+            self.interface = MSCLInterface.MSCLInterface(
+                "/dev/ttyACM0",
+                open(f"./logs/{now}_rawLORDlog.csv", "w+"),
+                open(f"./logs/{now}_estLORDlog.csv", "w+")
+            )
 
         self.interface.start_logging_loop_thread()
 
