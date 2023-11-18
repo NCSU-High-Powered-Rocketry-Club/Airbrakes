@@ -7,7 +7,7 @@ from .data import ABDataPoint
 
 class Airbrakes:
 
-    MOTOR_BURN_TIME = 2  # Time from liftoff detected to control start
+    MOTOR_BURN_TIME = 1.7  # Time from liftoff detected to control start
 
     # this is the pin that the servo's data wire is plugged into
     SERVO_PIN = 32
