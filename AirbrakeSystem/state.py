@@ -90,60 +90,36 @@ class LiftoffState(AirbrakeState):
 class ControlState(AirbrakeState):
     """ Where we actually do the control loop """
 
-    TARGET_APOGEE = 950
+    apogee_check_c = 0
+    alt_readings = [0.0] * 250
+    idx = 0 
+    max_alt_avg = 0
 
     def __init__(self, airbrakes: Airbrakes):
-        self.start_time = time.time()
-        self.pid = PID(1, 0, 0)  # TODO TUNE
-
-        self.data_init = False
-        self.velocity: float = 0
-
+        print(f"deploy time: {airbrakes.interface.last_time / 1e9}")
+        airbrakes.servo.set_degrees(airbrakes.SERVO_ON_ANGLE)
         super().__init__(airbrakes)
 
     def process(self, data_point: ABDataPoint):
-        if (data_point.altitude is None):
-            return
+        self.alt_readings[self.idx] = data_point.altitude
+        self.idx = (self.idx+1) % 250
 
-        if not self.data_init:
-            self.last_dp = data_point
-            self.data_init = True
-            return
+        alt_avg = int(sum(self.alt_readings)/250)
 
-        # timestamp is in ns, convert to seconds
-        delta_time = (data_point.timestamp - self.last_dp.timestamp) / 1e9
-        if (delta_time == 0):
-            delta_time = 0.01  # TODO: this shouldn't be needed once we have a real model
+        if (alt_avg > self.max_alt_avg):
+            self.max_alt_avg = alt_avg
+            self.apogee_check_c = 0
+        else:
+            self.apogee_check_c += 1
 
-        self.velocity = (data_point.altitude -
-                         self.last_dp.altitude) / delta_time
+        if (self.apogee_check_c == 1000):
+            print(f"apogee: {self.max_alt_avg} m")
+            self.airbrakes.to_state(FreefallState)
 
-        # PID LOGIC
-        predicted_apogee = self.predict_apogee()
-        error = predicted_apogee - self.TARGET_APOGEE
-        control = self.pid.process(
-            error, data_point.timestamp - self.last_dp.timestamp)
-        control = min(1, max(0, control)) * 1.0
+class FreefallState(AirbrakeState):
+    def __init__(self, airbrakes: Airbrakes):
+        print(f"retract time: {airbrakes.interface.last_time / 1e9}")
+        airbrakes.servo.set_degrees(airbrakes.SERVO_OFF_ANGLE)
 
-        print(
-            f"PID: {predicted_apogee:.5} {self.TARGET_APOGEE} {error} {data_point.altitude} {self.velocity} {control}")
-        self.airbrakes.servo.set_command(control)  # TODO
-
-        self.last_dp = data_point
-
-        # TODO: make a safer check for apogee
-        if self.velocity < 0:
-            self.airbrakes.ready_to_shutdown = True
-            # Airbrakes.to_state(FreefallState)
-
-    def predict_apogee(self):
-        # y = -0.5 * g * t^2 + v0 * t + y0
-
-        a = -0.5 * 9.81
-        b = self.velocity
-        c = self.last_dp.altitude
-
-        peak_time = -b / (2 * a)
-        peak_altitude = a * peak_time ** 2 + b * peak_time + c
-
-        return peak_altitude
+    def process(self, data_point: ABDataPoint):
+        pass
