@@ -13,8 +13,8 @@ class Airbrakes:
     SERVO_PIN = 32
 
     # these angles represent open and closed for the airbrakes, they are arbitrary
-    SERVO_OFF_ANGLE = 84.5
-    SERVO_ON_ANGLE = 164.5
+    SERVO_OFF_ANGLE = 2  #84.5
+    SERVO_ON_ANGLE = 139.5 #164.5
 
     def __init__(self, mock_servo=False, mock_imu=False):
 
