@@ -6,10 +6,12 @@ msg = "Main program that controls the flight of the rocket through airbrake syst
 
 parser = argparse.ArgumentParser(description=msg)
 
-parser.add_argument("-s", "--mock_servo", default=False,
-                    action="store_true", help="Use mock servo")
+parser.add_argument("-s", "--mock_servo", default=True,
+                    action="store_const", help="Use mock servo")
 parser.add_argument("-i", "--mock_imu", default=False,
                     action="store_true", help="Use mock IMU")
+parser.add_argument("-f", "--full_deployment", default=False, 
+                    action="store_true", help="Perform Full Deployent")
 
 args = parser.parse_args()
 
@@ -19,7 +21,7 @@ args = parser.parse_args()
 # or just run python main.py to run with all real hardware
 
 def main(args):
-    airbrakes = Airbrakes(args.mock_servo, args.mock_imu)
+    airbrakes = Airbrakes(args.mock_servo, args.mock_imu, args.full_deployment)
 
     while not airbrakes.ready_to_shutdown:
         try:
