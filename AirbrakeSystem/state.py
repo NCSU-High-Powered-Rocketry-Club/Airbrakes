@@ -87,8 +87,6 @@ class LiftoffState(AirbrakeState):
             # state_machine.to_state(TestState)
             airbrakes.to_state(ControlState)
 
-class 
-
 class ControlState(AirbrakeState):
     """ Where we actually do the control loop """
 
