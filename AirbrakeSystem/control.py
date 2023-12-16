@@ -8,10 +8,7 @@ class PID:
         self.integral = 0
 
     def process(self, error, dt):
-        # TODO: Use existing PID implementation
         self.integral += error * dt
-        if (dt == 0):
-            dt = 0.00001
         derivative = (error - self.last_error) / dt
 
         self.last_error = error
