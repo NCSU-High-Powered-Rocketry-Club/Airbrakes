@@ -10,7 +10,6 @@ class PID:
     def process(self, error, dt):
         self.integral += error * dt
         derivative = (error - self.last_error) / dt
-
         self.last_error = error
 
         return self.kp * error + self.ki * self.integral + self.kd * derivative
