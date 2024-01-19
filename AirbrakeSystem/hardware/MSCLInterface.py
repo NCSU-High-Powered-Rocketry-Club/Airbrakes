@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from io import TextIOWrapper
 import threading
 from collections import deque
 from ..data import ABDataPoint
-from . import mscl
+import mscl
 
 # TOOD (Before every launch): Make sure this value is correct
 UPSIDE_DOWN = True

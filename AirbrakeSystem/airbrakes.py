@@ -7,14 +7,14 @@ from .data import ABDataPoint
 
 class Airbrakes:
 
-    MOTOR_BURN_TIME = 2  # Time from liftoff detected to control start
+    MOTOR_BURN_TIME = 1.7  # Time from liftoff detected to control start
 
     # this is the pin that the servo's data wire is plugged into
     SERVO_PIN = 32
 
     # these angles represent open and closed for the airbrakes, they are arbitrary
-    SERVO_OFF_ANGLE = 84.5
-    SERVO_ON_ANGLE = 164.5
+    SERVO_OFF_ANGLE = 40
+    SERVO_ON_ANGLE = 170
 
     def __init__(self, mock_servo=False, mock_imu=False):
 

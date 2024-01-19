@@ -1,4 +1,7 @@
+from __future__ import annotations
 import argparse
+import sys
+sys.path.append("/usr/share/python3-mscl")
 
 from AirbrakeSystem import Airbrakes
 
@@ -6,10 +9,10 @@ msg = "Main program that controls the flight of the rocket through airbrake syst
 
 parser = argparse.ArgumentParser(description=msg)
 
-parser.add_argument("-s", "--mock_servo", default=False,
-                    action="store_true", help="Use mock servo")
-parser.add_argument("-i", "--mock_imu", default=False,
-                    action="store_true", help="Use mock IMU")
+parser.add_argument("-s", "--mock_servo", action="store_true",
+                    help="Use mock servo")
+parser.add_argument("-i", "--mock_imu", action="store_true",
+                    help="Use mock IMU")
 
 args = parser.parse_args()
 
