@@ -7,6 +7,9 @@ Here is the [MSCL Github Repository](https://github.com/LORD-MicroStrain/MSCL) n
 
 Here is the documentation for the [MSCL API](https://lord-microstrain.github.io/MSCL/Documentation/MSCL%20API%20Documentation/index.html).
 
+## Cloning the repo with submodules
+
+Since we are using a submodule for [orhelper](https://github.com/Graicc/orhelper), you need to clone the repo with `git clone --recurse-submodules https://github.com/NCSU-High-Powered-Rocketry-Club/Airbrakes`. If you have already cloned the repo, use `git submodule update --init --recursive` to get the submodule.
 
 ## Setting Up Your Python Venv
 

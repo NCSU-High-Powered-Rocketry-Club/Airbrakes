@@ -132,6 +132,9 @@ dmypy.json
 .pyre/
 logs/LORDlog.csv
 
+# logs
+log
+
 *.log
 *.csv
 *.swp

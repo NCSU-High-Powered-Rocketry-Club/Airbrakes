@@ -1,139 +1,86 @@
-import numpy as np
+import threading
 from ..data import ABDataPoint
 
-'''
-Module / Class created for simulating the flight of a rocket using 1D motion approximations.
-All unites in SI / metric unless explicitly stated otherwise
-'''
+import os
+import sys
+from queue import Queue
 
+# Add orhelper to path
+script_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(script_path, '../../orhelper'))
 
-class RocketModel1D:
-    itmax = 10000  # maximum number of simulation iterations
+import orhelper
 
-    def __init__(self, mass, area, drag_coeff, servo, density_model=1, gravtiy_model=1):
-        # Define the rocket
-        self.mass = mass
-        self.massi = 1/mass
-        self.ref_area = area  # reference area for the drag coefficient
-        self.Cd = drag_coeff
-        self.density_model = density_model
-        self.gravity_model = gravtiy_model
-        # state = np.array([position, velocity])
-        self.state = np.array([0.0, 0.0])
-        self.time = 0
+class Airbrakes(orhelper.AbstractSimulationListener):
+    """ Max height the fins can go to """
+    max_height = 0.03
+
+    def __init__(self, servo, queue) -> None:
+        super().__init__()
+
+        self.queue = queue
+        self.servo = servo
+    
+    def startSimulation(self, status):
+        # Find the fin set
+        for component in status.getConfiguration().getActiveComponents():
+            if component.getName() == "Airbrakes":
+                print("Found fin!")
+                self.fins = component
+                break
+
+    def postStep(self, status):
+        # TODO: This is 0 until apogee. Why?
+        accel_vec = status.getRocketAcceleration()
+        accel = accel_vec.z
+        
+        timestamp = status.getSimulationTime() * 1e9
+
+        altitude = status.getRocketPosition().z
+        
+        data_point = ABDataPoint(accel, timestamp, altitude)
+        self.queue.put(data_point)
+        
+        # -----
+        new_height = self.max_height * self.servo.get_command()
+        self.fins.setHeight(new_height)
+
+class MSCLInterface:
+    last_time: int = 0
+    airbrakes: Airbrakes = None
+
+    def __init__(self, servo):
+        """Mock constructor for MSCL interface"""
 
         self.servo = servo
 
-    def initialize(self, position, velocity):
-        self.state[0] = position
-        self.state[1] = velocity
-        self.time = 0
+        self.queue = Queue(1)
 
-    def set_timestep(self, dt):
-        self.dt = dt
+        self.or_thread = threading.Thread(target=self.start_or_thread)
+        self.or_thread.start()
 
-    def CdA(self):
-        return (self.Cd * (1 + self.servo.command * 0.5)) * self.ref_area
+    def start_or_thread(self):
+        # TODO: this used a with block, might be memory leak but won't matter in practice
+        with orhelper.OpenRocketInstance() as instance:
+            orh = orhelper.Helper(instance)
 
-    def rho(self):
-        if (self.density_model == 1):
-            return 1.2
-        else:
-            return float('NaN')
+            # Load document, run simulation and get data and events
+            doc = orh.load_doc(os.path.join(script_path, 'Purple Nurple_Airbrakes.ork'))
+            print(f"Number of simulations: {doc.getSimulationCount()}")
+            sim = doc.getSimulation(doc.getSimulationCount() - 1)
+            print(f"Simulation name: {sim.getName()}")
 
-    def g(self):
-        if (self.gravity_model == 1):
-            return 9.81
-        else:
-            return float('NaN')
-
-    def drag_force(self, velocity):
-        vmag = abs(velocity)
-        return 0.5*self.rho()*vmag*velocity*self.CdA()
-
-    def thrust_force(self):
-        return 1520 if self.time < 2.1 else 0
-
-    def acceleration(self):
-        return (self.thrust_force()-self.drag_force(self.state[1]))*self.massi - self.g()
-
-    def euler_step(self):
-        self.state += self.dt * np.array([self.state[1], self.acceleration()])
-        self.time += self.dt
-
-    def sim_to_apogee(self):
-        iter = 0
-        self.heights = []
-        self.times = []
-
-        self.heights.append(self.state[0])
-        self.times.append(0)
-
-        while (self.state[1] > 0) and (iter < self.itmax):
-            self.euler_step()
-
-            self.heights.append(self.state[0])
-            self.times.append(self.time)
-            iter += 1
-
-        return self.state[0]
-
-
-# TODO: TUNE
-rkt_mass = 19  # kg
-rkt_area = 0.018  # m Cross sectional area
-Cd = 0.6  # drag coefficient ~1.0 if airbrakes
-
-HOLD_TIME = 100  # Time from start of sim to liftoff
-
-# test_rock = rocket_model_1D(rkt_mass, rxt_area, Cd)
-
-
-class MSCLInterface:
-    """
-    Mocks the IMU with a 1D model
-    """
-    model: RocketModel1D
-    last_time: int = 0
-
-    def __init__(self, servo):
-        """Mock constructor for MSCL interface
-
-        Args:
-            port (any): Unused parameter, kept for consistency
-            raw_data_logfile (any): Unused, kept for consistency
-            est_data_logfile (any): Unused, kept for consistency
-        """
-
-        self.model = RocketModel1D(rkt_mass, rkt_area, Cd, servo)
-        self.model.set_timestep(0.001)
-        self.model.initialize(0, 0)
-        self.iter = 0
+            self.airbrakes = Airbrakes(self.servo, self.queue)
+            orh.run_simulation(sim, listeners=[self.airbrakes])
 
     def start_logging_loop_thread(self):
         return
 
     def pop_data_point(self) -> ABDataPoint:
-        self.iter += 1
-        import time
-        # time.sleep(0.001)
+        dp = self.queue.get()
 
-        res = ABDataPoint(0.0, 0, 0.0)
-
-        if (self.iter < HOLD_TIME):
-            res.timestamp = 0
-            res.accel = 0.0
-            res.altitude = 0.0
-        else:
-            self.model.euler_step()
-
-            res.timestamp = int(self.model.time * 1e9)
-            res.accel = self.model.acceleration()
-            res.altitude = self.model.state[0]
-
-        print(f"{(res.timestamp / 1e9) : 8.3} {res.accel:8.3} {res.altitude:.4}")
-        self.last_time = res.timestamp
-        return res
+        print(f"Got data point: {dp}")
+        return dp
 
     def stop_logging_loop(self):
         return

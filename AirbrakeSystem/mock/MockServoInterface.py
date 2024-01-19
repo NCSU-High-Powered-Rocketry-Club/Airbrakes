@@ -1,5 +1,5 @@
 class Servo:
-    command: float = 0.0  # 0 to 1
+    _command: float = 0.0  # 0 to 1
 
     def __init__(self, servoPin, minDuty, maxDuty):
         self.servoPin = servoPin
@@ -34,5 +34,8 @@ class Servo:
             command = 0.0
 
         print(f"Set servo command to {command:.3}")
-        self.command = command
+        self._command = command
         # self.set_degrees(command * 180) # TODO make good
+
+    def get_command(self):
+        return self._command
