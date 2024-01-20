@@ -13,8 +13,8 @@ class Airbrakes:
     SERVO_PIN = 32
 
     # these angles represent open and closed for the airbrakes, they are arbitrary
-    SERVO_OFF_ANGLE = 40
-    SERVO_ON_ANGLE = 170
+    SERVO_OFF_ANGLE = 40.0
+    SERVO_ON_ANGLE = 170.0
 
     def __init__(self, mock_servo=False, mock_imu=False):
 
@@ -59,7 +59,9 @@ class Airbrakes:
 
     def update(self):
         data_point = self.interface.pop_data_point()
-        if data_point is not None:
+        if data_point == "Done":
+            self.ready_to_shutdown = True
+        elif data_point is not None:
             self.process_data_point(data_point)
 
     def shutdown(self):

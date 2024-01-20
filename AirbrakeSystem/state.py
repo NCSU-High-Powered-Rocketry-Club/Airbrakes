@@ -80,7 +80,7 @@ class LiftoffState(AirbrakeState):
 
     def process(self, data_point: ABDataPoint):
         airbrakes = self.airbrakes
-        current_time = airbrakes.interface.last_time
+        current_time = data_point.timestamp
 
         # print(f"time to go {MOTOR_BURN_TIME - (current_time - self.start_time)}")
         if current_time - self.start_time > (airbrakes.MOTOR_BURN_TIME * 1e9):
@@ -95,12 +95,20 @@ class ControlState(AirbrakeState):
     idx = 0 
     max_alt_avg = 0
 
+    pid: PID = PID(0.01, 0.0, 0.0)
+
     def __init__(self, airbrakes: Airbrakes):
         print(f"deploy time: {airbrakes.interface.last_time / 1e9}")
         airbrakes.servo.set_degrees(airbrakes.SERVO_ON_ANGLE)
         super().__init__(airbrakes)
 
     def process(self, data_point: ABDataPoint):
+        
+        # TODO: predict apogee
+
+        # TODO: Control the servo based on apogee
+
+        # detect apogee and switch to freefall state
         self.alt_readings[self.idx] = data_point.altitude
         self.idx = (self.idx+1) % 250
 

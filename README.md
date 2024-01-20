@@ -7,32 +7,39 @@ Here is the [MSCL Github Repository](https://github.com/LORD-MicroStrain/MSCL) n
 
 Here is the documentation for the [MSCL API](https://lord-microstrain.github.io/MSCL/Documentation/MSCL%20API%20Documentation/index.html).
 
-## Cloning the repo with submodules
+## Setup
 
-Since we are using a submodule for [orhelper](https://github.com/Graicc/orhelper), you need to clone the repo with `git clone --recurse-submodules https://github.com/NCSU-High-Powered-Rocketry-Club/Airbrakes`. If you have already cloned the repo, use `git submodule update --init --recursive` to get the submodule.
+### Cloning the repo with submodules
 
-## Setting Up Your Python Venv
+Since this repo uses submodules (for [orhelper](https://github.com/Graicc/orhelper)), you need to clone the repo with `git clone --recurse-submodules https://github.com/NCSU-High-Powered-Rocketry-Club/Airbrakes`. If you have already cloned the repo, use `git submodule update --init --recursive` to update submodules.
 
-The first thing you should do prior to running your code is set up your virtual environment. To do this open you your terminal and make sure you are in the `Airbrakes` directory. Inside of that directory call the commands
+### OpenRocket Setup
 
-(Install pip3)
+Currently, the ORIL (OpenRocket-in-the-loop) simulation requires the nightly version of [OpenRocket](https://github.com/OpenRocket/OpenRocket). See [this issue](https://github.com/openrocket/openrocket/issues/2443), for the up to date status.
+The latest build of OpenRocket can be found on the actions tab, [this version](https://github.com/openrocket/openrocket/actions/runs/7543357295/artifacts/1172510658) is known to work. Make sure to update the `CLASSPATH` in [`_orhelper.py`](/orhelper/orhelper/_orhelper.py) to point to this installation of openrocket.
+
+### Setting Up Your Python Venv
+
+The first thing you should do prior to running your code is set up your virtual environment. To do this open you your terminal and make sure you are in the `Airbrakes` directory. Inside of that directory call the commands:
+
+Install pip3:
 ```bash
 sudo apt install python3-pip
 ```
 
-(Install venv)
+Install venv:
 ```bash
 sudo apt install python3-venv
 ```
 
-(Make venv)
+Make venv:
 ```bash
 python3 -m venv env
 ```
 
 to set up your virtual environment in a folder called env. Next you need to set this folder as your interpreter (your IDE might prompt you to do this automatically. If it did not prompt you, to do this in VS Code, press `ctrl+shift+p` to open your command prompt and type in `Python: Select Interpreter`. Press enter and select the one that ends in something like `('env':venv)`.
 
-## Installing Required Packages
+### Installing Required Packages
 
 In order to install the required packages, open a new terminal in VS Code by pressing ```ctrl+shift+` ```. This terminal will already be in your virtual environment, and simply run the command
 
@@ -40,7 +47,7 @@ In order to install the required packages, open a new terminal in VS Code by pre
 pip3 install -r requirements.txt
 ```
 
-## Running the Program
+### Running the Program
 
 Now that you have all the required packages installed, you can run the program by running the command
 
