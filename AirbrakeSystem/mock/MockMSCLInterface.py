@@ -57,7 +57,8 @@ class Airbrakes(orhelper.AbstractSimulationListener):
         new_height = self.max_height * self.servo.get_command()
         self.fins.setHeight(new_height)
 
-class MSCLInterface:
+
+class MockMSCLInterface:
     last_time: int = 0
     airbrakes: Airbrakes = None
 
