@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import csv
 
+# Run this file after you have run the simulation (python .\main.py -si)
+
 filename = "simulation.csv"
 headers = ["timestamp", "altitude", "accel"]
 timestamps: [float] = []
