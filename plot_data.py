@@ -15,7 +15,12 @@ with open(filename, "r") as file:
         altitudes.append(float(row[1]))
         accels.append(float(row[2]))
 
-plt.plot(timestamps, altitudes)
-plt.plot(timestamps, accels)
+plt.style.use("dark_background")
+plt.plot(timestamps, altitudes, label="Altitude", color="springgreen")
+plt.plot(timestamps, accels, label="Acceleration", color="dodgerblue")
+plt.xlabel("Time")
+plt.ylabel("Simulation Data")
+plt.legend()
+plt.title("Simulation Data Over Time")
 
 plt.show()
