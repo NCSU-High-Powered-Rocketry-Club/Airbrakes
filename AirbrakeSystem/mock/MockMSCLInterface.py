@@ -100,11 +100,13 @@ class MockMSCLInterface:
         except AttributeError:
             pass
 
-        print(f"Got data point: {dp}")
         return dp
 
+    # Because this is all simulated, we don't really need to log as it's going,
+    # just store all the points in a list, then log it at the end
     def start_logging_loop_thread(self):
-        return
+        print(f"Got data point: {self.pop_data_point()}")
 
+    # In the simulation, we can just log everything at the end
     def stop_logging_loop(self):
         return

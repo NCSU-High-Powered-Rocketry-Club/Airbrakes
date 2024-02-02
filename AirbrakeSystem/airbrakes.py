@@ -16,6 +16,8 @@ class Airbrakes:
     SERVO_OFF_ANGLE = 40.0
     SERVO_ON_ANGLE = 170.0
 
+    list_of_data_points: list[ABDataPoint] = []
+
     def __init__(self, mock_servo=False, mock_imu=False):
 
         self.ready_to_shutdown = False
@@ -59,10 +61,14 @@ class Airbrakes:
 
     def update(self):
         data_point = self.interface.pop_data_point()
+        # For now, I'm going to hijack this for logging
+        self.list_of_data_points.append(data_point)
         if data_point == "Done":
             self.ready_to_shutdown = True
         elif data_point is not None:
             self.process_data_point(data_point)
 
     def shutdown(self):
+        # TODO I'm not sure what format you want logging to be in, so this should be fixed as needed
+
         self.interface.stop_logging_loop()
