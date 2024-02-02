@@ -1,7 +1,21 @@
 import matplotlib.pyplot as plt
+import csv
 
-x = [1,2,3,4,5,6,7,8,9,10]
-y = [1,3,7,13,14,15,16,17,18,19]
+filename = "simulation.csv"
+headers = ["timestamp", "altitude", "accel"]
+timestamps: [float] = []
+altitudes: [float] = []
+accels: [float] = []
 
-plt.plot(x,y)
+with open(filename, "r") as file:
+    csvreader = csv.reader(file)
+    header = next(csvreader)
+    for row in csvreader:
+        timestamps.append(float(row[0]))
+        altitudes.append(float(row[1]))
+        accels.append(float(row[2]))
+
+plt.plot(timestamps, altitudes)
+plt.plot(timestamps, accels)
+
 plt.show()

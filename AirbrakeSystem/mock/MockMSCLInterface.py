@@ -4,6 +4,7 @@ Simulates the IMU interface for the rocket using OpenRocket
 
 import os
 import sys
+import csv
 import threading
 from queue import Queue
 
@@ -61,6 +62,7 @@ class Airbrakes(orhelper.AbstractSimulationListener):
 class MockMSCLInterface:
     last_time: int = 0
     airbrakes: Airbrakes = None
+    list_of_data_points: list[dict] = []
 
     def __init__(self, servo):
         """Mock constructor for MSCL interface"""
@@ -94,19 +96,33 @@ class MockMSCLInterface:
         self.queue.put("Done")
 
     def pop_data_point(self) -> ABDataPoint:
-        dp = self.queue.get()
+        dp: ABDataPoint = self.queue.get()
         try:
             self.last_time = dp.timestamp
+            # I'm going to hijack this method for data logging
+            self.list_of_data_points.append({
+                "timestamp": dp.timestamp,
+                "altitude": dp.altitude,
+                "accel": dp.accel
+            })
         except AttributeError:
             pass
 
+        # print(dp)
         return dp
 
     # Because this is all simulated, we don't really need to log as it's going,
     # just store all the points in a list, then log it at the end
     def start_logging_loop_thread(self):
-        print(f"Got data point: {self.pop_data_point()}")
+        pass
 
     # In the simulation, we can just log everything at the end
     def stop_logging_loop(self):
-        return
+        # TODO I'm not sure what format we want logging to be in, so this should be fixed as needed
+        filename = "simulation.csv"
+        headers = ["timestamp", "altitude", "accel"]
+        # writing to csv file
+        with open(filename, "w", newline="") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=headers)
+            writer.writeheader()
+            writer.writerows(self.list_of_data_points)
