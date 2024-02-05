@@ -1,4 +1,6 @@
 msgspec
 numpy
 JPype1
+plotly
+pandas
 setuptools~=69.0.2
