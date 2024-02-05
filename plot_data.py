@@ -1,28 +1,22 @@
-import matplotlib.pyplot as plt
-import csv
+import pandas as pd
+import plotly.graph_objects as go
 
 # Run this file after you have run the simulation (python .\main.py -si)
 
 filename = "simulation.csv"
-headers = ["timestamp", "altitude", "accel"]
-timestamps: [float] = []
-altitudes: [float] = []
-accels: [float] = []
 
-with open(filename, "r") as file:
-    csvreader = csv.reader(file)
-    header = next(csvreader)
-    for row in csvreader:
-        timestamps.append(float(row[0]))
-        altitudes.append(float(row[1]))
-        accels.append(float(row[2]))
+# Read data using pandas
+df = pd.read_csv(filename)
 
-plt.style.use("dark_background")
-plt.plot(timestamps, altitudes, label="Altitude", color="springgreen")
-plt.plot(timestamps, accels, label="Acceleration", color="dodgerblue")
-plt.xlabel("Time")
-plt.ylabel("Simulation Data")
-plt.legend()
-plt.title("Simulation Data Over Time")
+# Create traces for Altitude and Acceleration
+trace_altitude = go.Scatter(x=df['timestamp'], y=df['altitude'], mode='lines', name='Altitude', line=dict(color='blue'))
+trace_accel = go.Scatter(x=df['timestamp'], y=df['accel'], mode='lines', name='Acceleration', line=dict(color='red'))
 
-plt.show()
+# Create layout
+layout = go.Layout(title="Simulation Data Over Time", xaxis=dict(title='Time'), yaxis=dict(title='Simulation Data'))
+
+# Create figure
+fig = go.Figure(data=[trace_altitude, trace_accel], layout=layout)
+
+# Show the plot
+fig.show()
