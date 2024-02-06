@@ -98,6 +98,7 @@ class MSCLInterface:
     def pop_data_point(self) -> ABDataPoint | None:
         """Pops a data point off of the left of the databuffer deque"""
         try:
+            # TODO: This should always return a data point with all felids filled
             ret: ABDataPoint = self.databuffer.popleft()
             self.last_time = ret.timestamp
             return ret

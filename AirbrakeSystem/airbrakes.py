@@ -1,8 +1,11 @@
 from datetime import datetime
 from pathlib import Path
+import logging
 
 from . import state
 from .data import ABDataPoint
+
+logger = logging.getLogger("airbrakes_data")
 
 
 class Airbrakes:
@@ -43,7 +46,7 @@ class Airbrakes:
             self.interface = MSCLInterface.MSCLInterface(
                 "/dev/ttyACM0",
                 open(f"./logs/{now}_rawLORDlog.csv", "w+"),
-                open(f"./logs/{now}_estLORDlog.csv", "w+")
+                open(f"./logs/{now}_estLORDlog.csv", "w+"),
             )
 
         self.interface.start_logging_loop_thread()
@@ -51,7 +54,7 @@ class Airbrakes:
         self.to_state(state.StandbyState)
 
     def to_state(self, new_state):
-        print(f"Transitioning to state {new_state.__name__}")
+        logger.info("State Change,%s", new_state.__name__)
         self.state = new_state(self)
 
     def process_data_point(self, data_point: ABDataPoint):
@@ -61,7 +64,10 @@ class Airbrakes:
         data_point = self.interface.pop_data_point()
         if data_point == "Done":
             self.ready_to_shutdown = True
+            logger.info("Done")
         elif data_point is not None:
+            # log as csv
+            logger.info("Data point,%s,%s", data_point.altitude, data_point.accel)
             self.process_data_point(data_point)
 
     def shutdown(self):
