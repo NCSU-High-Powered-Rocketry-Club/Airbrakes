@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 from typing import TYPE_CHECKING
 import time
 
@@ -7,6 +8,8 @@ if TYPE_CHECKING:
 
 from .data import ABDataPoint
 from .control import PID
+
+logger = logging.getLogger("airbrakes_data")
 
 # The flight consists of 4 sections
 # 1. Standby: While the rocket is on the ground, detects launch
@@ -24,6 +27,7 @@ class StandbyState(AirbrakeState):
     """
     On the launch pad
     """
+
     AVERAGE_COUNT = 250
     # require an acceleration of 5m/s^2
     ACCELERATION_REQUIREMENT = 5
@@ -53,8 +57,7 @@ class StandbyState(AirbrakeState):
 
         # print(self.accelerations)
 
-        average_acceleration = sum(
-            self.accelerations) / StandbyState.AVERAGE_COUNT
+        average_acceleration = sum(self.accelerations) / StandbyState.AVERAGE_COUNT
 
         # We have to use the absolute value of acceleration here because
         # the actual acceleration will be a large negative number.
@@ -87,12 +90,13 @@ class LiftoffState(AirbrakeState):
             # state_machine.to_state(TestState)
             airbrakes.to_state(ControlState)
 
+
 class ControlState(AirbrakeState):
-    """ Where we actually do the control loop """
+    """Where we actually do the control loop"""
 
     apogee_check_c = 0
-    alt_readings = [0.0] * 250
-    idx = 0 
+    alt_readings = [0.0] * 50
+    idx = 0
     max_alt_avg = 0
 
     pid: PID = PID(0.01, 0.0, 0.0)
@@ -103,26 +107,36 @@ class ControlState(AirbrakeState):
         super().__init__(airbrakes)
 
     def process(self, data_point: ABDataPoint):
-        
         # TODO: predict apogee
+        logger.info("Predicted Apogee,%.3f", 1000.0)
 
         # TODO: Control the servo based on apogee
+        logger.info("Servo Control,%.3f", 0.43)
 
         # detect apogee and switch to freefall state
         self.alt_readings[self.idx] = data_point.altitude
-        self.idx = (self.idx+1) % 250
+        self.idx = (self.idx + 1) % len(self.alt_readings)
 
-        alt_avg = int(sum(self.alt_readings)/250)
+        alt_avg = sum(self.alt_readings) / len(self.alt_readings)
 
-        if (alt_avg > self.max_alt_avg):
+        logger.info("Average Altitude,%.3f", alt_avg)
+
+        # TODO: Validate on old data
+        if alt_avg > self.max_alt_avg:
             self.max_alt_avg = alt_avg
             self.apogee_check_c = 0
         else:
             self.apogee_check_c += 1
 
-        if (self.apogee_check_c == 1000):
+        if self.apogee_check_c == 10:
             print(f"apogee: {self.max_alt_avg} m")
             self.airbrakes.to_state(FreefallState)
+        if alt_avg < self.max_alt_avg:
+            self.max_alt_avg = alt_avg
+            self.apogee_check_c = 0
+            print(f"apogee: {self.max_alt_avg} m")
+            self.airbrakes.to_state(FreefallState)
+
 
 class FreefallState(AirbrakeState):
     def __init__(self, airbrakes: Airbrakes):

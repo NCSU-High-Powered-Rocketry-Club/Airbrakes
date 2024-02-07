@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "filters": {
+        "airbrakes_data": {
+            "()": "main.AirbrakesDataFilter"
+        }
+    },
+    "formatters": {
+        "standard": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        },
+        "csv": {
+            "()": "main.CSVFormatter"
+        }
+
+    },
+    "handlers": {
+        "stdout": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+            "stream": "ext://sys.stdout"
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "formatter": "csv",
+            "filename": "logs/{datetime}.log",
+            "filters": ["airbrakes_data"]
+        }
+    },
+    "loggers": {
+        "root": {
+            "handlers": ["stdout", "file"],
+            "level": "DEBUG"
+        }
+    }
+    
+}
