@@ -4,18 +4,16 @@ Simulates the IMU interface for the rocket using OpenRocket
 
 import os
 import sys
-import csv
 import threading
 from queue import Queue
 
-from ..data import ABDataPoint
+from AirbrakeSystem.data import ABDataPoint
 
-# Add orhelper to path
-# TODO: this is a hack, find a better way to do this
-script_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(script_path, "../../orhelper"))
+import orhelper.orhelper as orhelper
 
-import orhelper
+
+OR_FILE_NAME = "Purple Nurple_Airbrakes.ork"
+OR_FILE_PATH = os.path.join(os.path.dirname(__file__), OR_FILE_NAME)
 
 
 class Airbrakes(orhelper.AbstractSimulationListener):
@@ -24,6 +22,8 @@ class Airbrakes(orhelper.AbstractSimulationListener):
     max_height = 0.03
 
     acceleration: float = 0.0
+
+    fins: any
 
     def __init__(self, servo, queue) -> None:
         super().__init__()
@@ -41,7 +41,7 @@ class Airbrakes(orhelper.AbstractSimulationListener):
                 break
 
     # pylint: disable-next=invalid-name
-    def postAccelerationCalculation(self, status, acceleration_data):
+    def postAccelerationCalculation(self, _status, acceleration_data):
         self.acceleration = acceleration_data.getLinearAccelerationWC().z
 
     # pylint: disable-next=invalid-name
@@ -89,7 +89,7 @@ class MockMSCLInterface:
         orh = orhelper.Helper(self.instance)
 
         # Load document, run simulation and get data and events
-        doc = orh.load_doc(os.path.join(script_path, "Purple Nurple_Airbrakes.ork"))
+        doc = orh.load_doc(OR_FILE_PATH)
         print(f"Number of simulations: {doc.getSimulationCount()}")
         sim = doc.getSimulation(doc.getSimulationCount() - 1)
         print(f"Simulation name: {sim.getName()}")

@@ -1,3 +1,7 @@
+"""
+Run as `python -m Scripts.plot_data <log_file_path (optional)>`
+"""
+
 import sys
 import pandas as pd
 import plotly.graph_objects as go

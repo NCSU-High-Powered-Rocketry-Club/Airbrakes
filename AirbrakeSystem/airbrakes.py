@@ -19,6 +19,8 @@ class Airbrakes:
     SERVO_CLOSED_DUTY = 9.2
     SERVO_OPEN_DUTY = 6.3
 
+    state = None
+
     def __init__(self, mock_servo=False, mock_imu=False):
 
         self.ready_to_shutdown = False
@@ -54,7 +56,8 @@ class Airbrakes:
         self.to_state(state.StandbyState)
 
     def to_state(self, new_state):
-        logger.info("State Change,%s", new_state.__name__)
+        if self.state is not None:
+            logger.info("State Change,%s", new_state.__name__)
         self.state = new_state(self)
 
     def process_data_point(self, data_point: ABDataPoint):
