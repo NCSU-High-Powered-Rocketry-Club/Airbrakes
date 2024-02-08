@@ -19,7 +19,7 @@ OR_FILE_PATH = os.path.join(os.path.dirname(__file__), OR_FILE_NAME)
 class Airbrakes(orhelper.AbstractSimulationListener):
     """Max height the fins can go to"""
 
-    max_height = 0.03
+    MAX_HEIGHT = 0.03
 
     acceleration: float = 0.0
 
@@ -57,7 +57,7 @@ class Airbrakes(orhelper.AbstractSimulationListener):
         self.queue.put(data_point)
 
         # Set the height of the fins
-        new_height = self.max_height * self.servo.get_command()
+        new_height = self.MAX_HEIGHT * self.servo.get_command()
         self.fins.setHeight(new_height)
 
 
