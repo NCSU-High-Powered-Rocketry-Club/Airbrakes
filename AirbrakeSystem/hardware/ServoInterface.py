@@ -1,4 +1,7 @@
+import logging
 import RPi.GPIO as GPIO
+
+logger = logging.getLogger("airbrakes_data")
 
 
 class Servo:

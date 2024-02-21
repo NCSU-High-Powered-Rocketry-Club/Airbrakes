@@ -16,7 +16,9 @@ class MSCLInterface:
     Parker-LORD 3DMCX5-AR.
     """
 
-    def __init__(self, port, raw_data_logfile: TextIOWrapper, est_data_logfile: TextIOWrapper):
+    def __init__(
+        self, port, raw_data_logfile: TextIOWrapper, est_data_logfile: TextIOWrapper
+    ):
         # creating data node
         self.connection = mscl.Connection.Serial(port)
         self.node = mscl.InertialNode(self.connection)
@@ -28,12 +30,12 @@ class MSCLInterface:
         self.running = False
 
         # rate in which we poll date  in miliseconds (1/(Hz)*1000)
-        self.polling_rate = int(1/(100)*1000)
+        self.polling_rate = int(1 / (100) * 1000)
 
         self.last_time: int = 0
 
     def stop_logging_loop(self):
-        """ Stops the logging loop. """
+        """Stops the logging loop."""
         self.running = False
         self.logging_thread.join()
         self.raw_data_logfile.close()
@@ -50,7 +52,7 @@ class MSCLInterface:
     def start_logging_loop(self):
         """
         Method used to run the logging loop until stopped by
-        `stop_logging_loop`. All data collected by the IMU is logged to the 
+        `stop_logging_loop`. All data collected by the IMU is logged to the
         logfile. All the accelerating and time data is saved to the data
         buffer.
         """
@@ -62,23 +64,22 @@ class MSCLInterface:
         while self.running:
             # get all the data packets from the node with a timeout of the
             # polling rate in milliseconds
-            packets: mscl.MipDataPackets = self.node.getDataPackets(
-                self.polling_rate)
+            packets: mscl.MipDataPackets = self.node.getDataPackets(self.polling_rate)
 
             packet: mscl.MipDataPacket
             for packet in packets:
                 # Log the headers to a file if we haven't already
-                if (not have_raw):
+                if not have_raw:
                     data_point: mscl.MipDataPoint
                     for data_point in packet.data():
-                        if (data_point.channelName()[:3] != "est"):
+                        if data_point.channelName()[:3] != "est":
                             self.print_headers(packet, self.raw_data_logfile)
                             have_raw = True
                         break
 
-                if (not have_est):
+                if not have_est:
                     for data_point in packet.data():
-                        if (data_point.channelName()[:3] == "est"):
+                        if data_point.channelName()[:3] == "est":
                             self.print_headers(packet, self.est_data_logfile)
                             have_est = True
                         break
@@ -92,7 +93,7 @@ class MSCLInterface:
 
     def print_headers(self, packet, logfile):
         for data_point in packet.data():
-            logfile.write(str(data_point.channelName())+",")
+            logfile.write(str(data_point.channelName()) + ",")
         logfile.write("\n")
 
     def pop_data_point(self) -> ABDataPoint | None:
@@ -123,6 +124,7 @@ class MSCLInterface:
 
             # get the channel dat
             # TODO: Update the pi to 3.10 so we can use a match statement
+            # TODO: Get velocity
             channel = data_point.channelName()
 
             if channel == "estLinearAccelX":
@@ -141,5 +143,5 @@ class MSCLInterface:
                 # send the processed data to the databuffer
                 self.databuffer.append(data_object)
 
-            logfile.write(str(data_point.as_float())+",")
+            logfile.write(str(data_point.as_float()) + ",")
         logfile.write("\n")

@@ -34,7 +34,7 @@ class StandbyState(AirbrakeState):
 
     def __init__(self, airbrakes: Airbrakes):
 
-        airbrakes.servo.set_degrees(airbrakes.SERVO_OFF_ANGLE)
+        airbrakes.servo.set_command(0)
 
         # We create an array to store the last n accelerations
         # in order to find the moving average.
@@ -91,6 +91,23 @@ class LiftoffState(AirbrakeState):
             airbrakes.to_state(ControlState)
 
 
+LOOKUP_TABLE_PATH = "lookup_table.csv"
+
+# Ideally this wouldn't be called on open, but I don't want to block
+lookup_table = []
+with open(LOOKUP_TABLE_PATH, "r") as lookup_table_f:
+    for line in lookup_table_f.readlines()[1:]:
+        lookup_table.append([float(x) for x in line.strip().split(",")])
+
+
+def get_row(velocity):
+    error = 0.75
+    # return [
+    #     x * error for x in min(lookup_table, key=lambda x: abs(x[0] - velocity))[1:]
+    # ]
+    return 10 * [999.0]
+
+
 class ControlState(AirbrakeState):
     """Where we actually do the control loop"""
 
@@ -100,18 +117,36 @@ class ControlState(AirbrakeState):
     max_alt_avg = 0
 
     pid: PID = PID(0.01, 0.0, 0.0)
+    airbrakes: Airbrakes
+
+    target_apogee = 580.0
 
     def __init__(self, airbrakes: Airbrakes):
         print(f"deploy time: {airbrakes.interface.last_time / 1e9}")
-        airbrakes.servo.set_degrees(airbrakes.SERVO_ON_ANGLE)
+        logger.info("Target Apogee,%s", ControlState.target_apogee)
+        self.airbrake = airbrakes
         super().__init__(airbrakes)
 
     def process(self, data_point: ABDataPoint):
         # TODO: predict apogee
-        logger.info("Predicted Apogee,%.3f", 1000.0)
+        row = get_row(data_point.velocity)
+        print("altitude", data_point.altitude)
+
+        # Log max and min apogee
+        zero_alt = data_point.altitude + row[0]
+        logger.info("Predicted Apogee0,%.3f", zero_alt)
+        one_alt = data_point.altitude + row[-1]
+        logger.info("Predicted Apogee1,%.3f", one_alt)
+
+        # find the airbrakes amount that minimizes error
+        target_delta_h = ControlState.target_apogee - data_point.altitude
+        [index, prediction] = min(
+            enumerate(row), key=lambda x: abs(x[1] - target_delta_h)
+        )
+        logger.info("Predicted Apogee,%.3f", data_point.altitude + prediction)
 
         # TODO: Control the servo based on apogee
-        logger.info("Servo Control,%.3f", 0.43)
+        self.airbrakes.servo.set_command(index / 10)
 
         # detect apogee and switch to freefall state
         self.alt_readings[self.idx] = data_point.altitude
@@ -141,7 +176,7 @@ class ControlState(AirbrakeState):
 class FreefallState(AirbrakeState):
     def __init__(self, airbrakes: Airbrakes):
         print(f"retract time: {airbrakes.interface.last_time / 1e9}")
-        airbrakes.servo.set_degrees(airbrakes.SERVO_OFF_ANGLE)
+        airbrakes.servo.set_command(0)
 
     def process(self, data_point: ABDataPoint):
         pass

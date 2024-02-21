@@ -70,7 +70,12 @@ class Airbrakes:
             logger.info("Done")
         elif data_point is not None:
             # log as csv
-            logger.info("Data point,%s,%s", data_point.altitude, data_point.accel)
+            logger.info(
+                "Data point,%s,%s,%s",
+                data_point.altitude,
+                data_point.accel,
+                data_point.velocity,
+            )
             self.process_data_point(data_point)
 
     def shutdown(self):

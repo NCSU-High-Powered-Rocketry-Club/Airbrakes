@@ -9,3 +9,4 @@ class ABDataPoint(Struct):
     accel: float
     timestamp: int
     altitude: float
+    velocity: float

@@ -50,8 +50,9 @@ class Airbrakes(orhelper.AbstractSimulationListener):
         timestamp = int(status.getSimulationTime() * 1e9)
 
         altitude = status.getRocketPosition().z
+        velocity = status.getRocketVelocity().z
 
-        data_point = ABDataPoint(self.acceleration, timestamp, altitude)
+        data_point = ABDataPoint(self.acceleration, timestamp, altitude, velocity)
         # put in the queue
         # since the queue is size 1, this will block until the data point is popped
         self.queue.put(data_point)

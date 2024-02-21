@@ -29,7 +29,10 @@ data = {
     "timestamp": [],
     "altitude": [],
     "acceleration": [],
+    "velocity": [],
     "predicted_apogee": [],
+    "predicted_apogee0": [],
+    "predicted_apogee1": [],
     "servo_control": [],
     "average_altitude": [],
 }
@@ -54,6 +57,9 @@ for line in lines:
     if event_type == "Data point":
         data["altitude"].append(float(parts[2]))
         data["acceleration"].append(float(parts[3]))
+        data["velocity"].append(float(parts[4]))
+    elif event_type == "Target Apogee":
+        target_apogee = float(parts[2])
     elif event_type == "State Change":
         data["timestamp"].pop()
         # remove the 'State' suffix
@@ -99,6 +105,20 @@ trace_predicted_apogee = go.Scatter(
     name="Predicted Apogee",
     line=dict(color="green"),
 )
+trace_predicted_apogee0 = go.Scatter(
+    x=df.index,
+    y=df["predicted_apogee0"],
+    mode="lines",
+    name="Predicted Apogee0",
+    line=dict(color="green"),
+)
+trace_predicted_apogee1 = go.Scatter(
+    x=df.index,
+    y=df["predicted_apogee1"],
+    mode="lines",
+    name="Predicted Apogee1",
+    line=dict(color="green"),
+)
 trace_servo_control = go.Scatter(
     x=df.index,
     y=df["servo_control"],
@@ -112,8 +132,8 @@ trace_average_altitude = go.Scatter(
     mode="lines",
     name="Average Altitude",
     line=dict(color="orange"),
+    visible="legendonly",
 )
-trace_average_altitude.visible = "legendonly"
 
 # Create layout
 layout = go.Layout(
@@ -128,10 +148,19 @@ fig = go.Figure(
         trace_altitude,
         trace_accel,
         trace_predicted_apogee,
+        trace_predicted_apogee0,
+        trace_predicted_apogee1,
         trace_servo_control,
         trace_average_altitude,
     ],
     layout=layout,
+)
+
+fig.add_hline(
+    y=target_apogee,
+    line_dash="dot",
+    line_color="green",
+    annotation_text="Target Apogee",
 )
 
 # annotate the state changes on the altitude plot
