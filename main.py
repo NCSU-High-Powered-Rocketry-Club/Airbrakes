@@ -16,8 +16,11 @@ from AirbrakeSystem import Airbrakes
 parser = argparse.ArgumentParser(
     description="Main program that controls the flight of the rocket through airbrake systems"
 )
+
 parser.add_argument("-s", "--mock_servo", action="store_true", help="Use mock servo")
 parser.add_argument("-i", "--mock_imu", action="store_true", help="Use mock IMU")
+parser.add_argument("-v", "--velocity", type=float, help="Vel to deploy airbrakes at")
+parser.add_argument("-e", "--extension", type=float, help="Extension of airbrakes")
 
 args = parser.parse_args()
 
@@ -57,7 +60,10 @@ def setup_logging():
 def main(args):
     setup_logging()
 
-    airbrakes = Airbrakes(args.mock_servo, args.mock_imu)
+    if args.mock_servo and args.mock_imu:
+        airbrakes = Airbrakes(True, True, args.velocity, args.extension)
+    else:
+        airbrakes = Airbrakes(args.mock_servo, args.mock_imu)
 
     # inject the airbrakes object into the CSVFormatter
     # so that we can have accurate time in sim

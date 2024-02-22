@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 import plotly.graph_objects as go
+from AirbrakeSystem import airbrakes
 
 # Run this file after you have run the simulation (python .\main.py -si)
 
@@ -25,7 +26,6 @@ data = {
     "timestamp": [],
     "altitude": [],
     "acceleration": [],
-    "velocity": [],
     "predicted_apogee": [],
     "servo_control": [],
     "average_altitude": [],
@@ -48,8 +48,6 @@ for line in lines:
     if event_type == "Data point":
         data["altitude"].append(float(parts[2]))
         data["acceleration"].append(float(parts[3]))
-        if len(parts) > 4:
-            data["velocity"].append(float(parts[4]))
     elif event_type == "State Change":
         data["timestamp"].pop()
         # remove the 'State' suffix
@@ -75,81 +73,3 @@ df = df.groupby("timestamp").agg(
     lambda x: x.dropna().iloc[0] if x.notnull().any() else None
 )
 
-print(df)
-
-# Create traces for Altitude and Acceleration
-trace_altitude = go.Scatter(
-    x=df.index, y=df["altitude"], mode="lines", name="Altitude", line=dict(color="blue")
-)
-trace_accel = go.Scatter(
-    x=df.index,
-    y=df["acceleration"],
-    mode="lines",
-    name="Acceleration",
-    line=dict(color="red"),
-)
-trace_vel = go.Scatter(
-    x=df.index,
-    y=df["velocity"],
-    mode="lines",
-    name="Velocity",
-    line=dict(color="yellow"),
-)
-trace_predicted_apogee = go.Scatter(
-    x=df.index,
-    y=df["predicted_apogee"],
-    mode="lines",
-    name="Predicted Apogee",
-    line=dict(color="green"),
-)
-trace_servo_control = go.Scatter(
-    x=df.index,
-    y=df["servo_control"],
-    mode="lines",
-    name="Servo Control",
-    line=dict(color="purple"),
-)
-trace_average_altitude = go.Scatter(
-    x=df.index,
-    y=df["average_altitude"],
-    mode="lines",
-    name="Average Altitude",
-    line=dict(color="orange"),
-)
-trace_average_altitude.visible = "legendonly"
-
-# Create layout
-layout = go.Layout(
-    title="Simulation Data Over Time",
-    xaxis=dict(title="Time"),
-    yaxis=dict(title="Simulation Data"),
-)
-
-# Create figure
-fig = go.Figure(
-    data=[
-        trace_altitude,
-        trace_accel,
-        trace_vel,
-        trace_predicted_apogee,
-        trace_servo_control,
-        trace_average_altitude,
-    ],
-    layout=layout,
-)
-
-# annotate the state changes on the altitude plot
-for state_change in state_changes:
-    y = df["altitude"][state_change[0]]
-    fig.add_annotation(
-        x=state_change[0],
-        y=y,
-        text=state_change[1],
-        showarrow=True,
-        arrowhead=7,
-        ax=0,
-        ay=-75,
-    )
-
-# Show the plot
-fig.show()
