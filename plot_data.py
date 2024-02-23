@@ -25,7 +25,6 @@ data = {
     "timestamp": [],
     "altitude": [],
     "acceleration": [],
-    "velocity": [],
     "predicted_apogee": [],
     "servo_control": [],
     "average_altitude": [],
@@ -48,8 +47,6 @@ for line in lines:
     if event_type == "Data point":
         data["altitude"].append(float(parts[2]))
         data["acceleration"].append(float(parts[3]))
-        if len(parts) > 4:
-            data["velocity"].append(float(parts[4]))
     elif event_type == "State Change":
         data["timestamp"].pop()
         # remove the 'State' suffix
@@ -88,13 +85,6 @@ trace_accel = go.Scatter(
     name="Acceleration",
     line=dict(color="red"),
 )
-trace_vel = go.Scatter(
-    x=df.index,
-    y=df["velocity"],
-    mode="lines",
-    name="Velocity",
-    line=dict(color="yellow"),
-)
 trace_predicted_apogee = go.Scatter(
     x=df.index,
     y=df["predicted_apogee"],
@@ -130,7 +120,6 @@ fig = go.Figure(
     data=[
         trace_altitude,
         trace_accel,
-        trace_vel,
         trace_predicted_apogee,
         trace_servo_control,
         trace_average_altitude,

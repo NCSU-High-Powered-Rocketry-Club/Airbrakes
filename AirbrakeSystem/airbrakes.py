@@ -19,13 +19,7 @@ class Airbrakes:
     SERVO_OFF_ANGLE = 40.0
     SERVO_ON_ANGLE = 170.0
 
-    velocity = 0
-    position = 0
-    last_data_point: ABDataPoint = None
-
-    def __init__(self, mock_servo=False, mock_imu=False, sim_deploy_vel=None, sim_extension=None):
-        self.sim_deploy_vel = sim_deploy_vel
-        self.sim_extension = sim_extension
+    def __init__(self, mock_servo=False, mock_imu=False):
 
         self.ready_to_shutdown = False
 
@@ -72,23 +66,9 @@ class Airbrakes:
             self.ready_to_shutdown = True
             logger.info("Done")
         elif data_point is not None:
-            # Checks that we are trying to make a lookup table and that there is a last data point
-            if self.sim_deploy_vel is not None and self.last_data_point is not None:
-                dt_seconds: float = (data_point.timestamp - self.last_data_point.timestamp) / 10.0**9
-                self.estimate_velocity(data_point.accel, dt_seconds)
-                logger.info("Data point,%s,%s,%s", data_point.altitude, data_point.accel, self.velocity)
-            else:
-                # log as csv
-                logger.info("Data point,%s,%s", data_point.altitude, data_point.accel)
-            self.last_data_point = data_point
-
+            # log as csv
+            logger.info("Data point,%s,%s", data_point.altitude, data_point.accel)
             self.process_data_point(data_point)
 
     def shutdown(self):
         self.interface.stop_logging_loop()
-
-    def estimate_velocity(self, a: float, dt: float):
-        self.velocity += a * dt
-
-    def get_motor_burn_time(self):
-        return self.MOTOR_BURN_TIME
