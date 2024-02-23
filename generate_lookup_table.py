@@ -1,20 +1,20 @@
+import concurrent.futures
 import csv
-import numpy as np
 import sys
 import subprocess
 import os
 
-# Okay I know this is not very efficient but who cares
 
 VELOCITY_STEP = 100
-EXTENSIONS = [0, 0.5]
+# EXTENSIONS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+EXTENSIONS = [0.0, 0.5, 1.0]
+FILEPATH = "lookup_table.csv"
 
 
 def get_newest_log_lines() -> list[str]:
     # Read the log file
     if len(sys.argv) < 2:
         # Get the newest file from the logs folder
-        import os
         logs = os.listdir("./logs")
         logs.sort()
         filename = "./logs/" + logs[-1]
@@ -23,6 +23,18 @@ def get_newest_log_lines() -> list[str]:
 
     with open(filename, "r") as file:
         return file.readlines()
+
+
+def get_log_lines(file_path: str) -> list[str]:
+    with open(file_path, "r") as file:
+        return file.readlines()
+
+
+def get_control_state_index(lines) -> int:
+    for i in range(len(lines)):
+        parts = lines[i].strip().split(",")
+        if parts[2] == "ControlState":
+            return i
 
 
 def get_change_in_altitude(lines, deploy_velocity) -> float:
@@ -35,7 +47,6 @@ def get_change_in_altitude(lines, deploy_velocity) -> float:
         current_altitude = float(parts[2])
         if deploy_altitude is None and float(parts[4]) <= deploy_velocity:
             deploy_altitude = current_altitude
-            print("deploy " + str(deploy_altitude))
         # Checks for reaching apogee
         if current_altitude <= last_altitude:
             print("apogee " + str(current_altitude))
@@ -43,14 +54,7 @@ def get_change_in_altitude(lines, deploy_velocity) -> float:
         last_altitude = current_altitude
 
 
-def get_control_state_index(lines) -> int:
-    for i in range(len(lines)):
-        parts = lines[i].strip().split(",")
-        if parts[2] == "ControlState":
-            return i
-
-
-def launch_sim(deploy_velocity: float = 0, extension_percent: float = 0):
+def launch_sim(deploy_velocity: float = 0, extension_percent: float = 0) -> None:
     file_path = "main.py"
     # Arguments to pass to the Python script
     script_args = ["-si", "-v", str(deploy_velocity), "-e", str(extension_percent)]
@@ -64,6 +68,7 @@ def launch_sim(deploy_velocity: float = 0, extension_percent: float = 0):
         # Run the Python script externally with arguments and capture its output
         process = subprocess.Popen([sys.executable, file_path] + script_args, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE, text=True)
+
         process.communicate()
         # # Read and print the output
         # print("Standard Output:")
@@ -82,58 +87,55 @@ def launch_sim(deploy_velocity: float = 0, extension_percent: float = 0):
         print(f"Error starting the process: {e}")
 
 
-# Initialize lookup table
-lookup_table = []
-
-# Runs the sim once to get some starting values
-launch_sim()
-log_lines = get_newest_log_lines()
-control_state_index = get_control_state_index(log_lines)
-max_velocity = float(log_lines[control_state_index + 1].split(",")[4])
-
-# Runs the simulations to get the values for the lookup table
-for velocity in range(int(max_velocity), 0, -VELOCITY_STEP):
-    velocity_entry = [velocity, []]
-    for extension in EXTENSIONS:
-        extension_entry = [extension]
-        launch_sim(velocity, extension)
-        log_lines = get_newest_log_lines()
-        print("vel " + str(velocity))
-        extension_entry.append(get_change_in_altitude(log_lines[control_state_index + 1:], velocity))
-        velocity_entry[1].append(extension_entry)
-    lookup_table.append(velocity_entry)
+def write_lookup_table_to_csv(file_path: str, lookup_table: list):
+    with open(file_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Initial Velocity", "Extension Lookup Table"])
+        for row in lookup_table:
+            x_value, y_values = row
+            writer.writerow([x_value, y_values])
 
 
-print(lookup_table)
-
-flattened_data = []
-for entry in lookup_table:
-    first_value = entry[0]
-    for sublist in entry[1]:
-        flattened_data.append([first_value] + sublist)
-
-# Write flattened data to CSV file
-with open('data.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['First Value', 'Second Value', 'Third Value'])
-    for row in flattened_data:
-        writer.writerow(row)
+def read_lookup_table_from_csv(file_path: str) -> list:
+    read_data = []
+    with open(file_path, 'r', newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # Skip header row
+        for row in reader:
+            x_value = int(row[0])
+            y_values = eval(row[1])  # Use eval to convert string representation of list to list
+            read_data.append([x_value, y_values])
+        return read_data
 
 
+def main():
+    lookup_table = []
 
-# Read data from CSV file into a list
-read_data = []
-with open('data.csv', 'r', newline='') as csvfile:
-    reader = csv.reader(csvfile)
-    next(reader)  # Skip header row
-    for row in reader:
-        read_data.append(row)
+    # Runs the sim once to get some starting values
+    launch_sim()
+    log_lines = get_newest_log_lines()
+    control_state_index = get_control_state_index(log_lines)
+    max_velocity = float(log_lines[control_state_index + 1].split(",")[4])
 
-# Reconstruct the original structure
-reconstructed_data = []
-for row in read_data:
-    first_value = int(row[0])
-    sublist = [[float(row[1]), float(row[2])]]
-    reconstructed_data.append([first_value, sublist])
+    # Makes the skeleton lookup table
+    lookup_table = [
+        [float(velocity), [[extension, 0] for extension in EXTENSIONS]]
+        for velocity in range(int(max_velocity), 0, -VELOCITY_STEP)
+    ]
 
-print(reconstructed_data)
+    for velocity_entry in lookup_table:
+        velocity = velocity_entry[0]
+        for extension_entry in velocity_entry:
+            extension = extension_entry[0]
+            lines = get_log_lines(f"logs/lookup_table_logs/vel{velocity}ext{extension}.log")
+            change_in_altitude = get_change_in_altitude(lines, velocity)
+            extension_entry[1] = change_in_altitude
+
+
+
+if __name__ == "__main__":
+    # main()
+    vel = 100.0
+    ext = .5
+    # launch_sim(vel, ext)
+    filepath = f"logs/lookup_table_logs/vel{vel}ext{ext}.log"

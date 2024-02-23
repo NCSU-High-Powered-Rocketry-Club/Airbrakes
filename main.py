@@ -5,6 +5,7 @@ import json
 import logging.config
 from pathlib import Path
 import sys
+import os
 
 sys.path.append("/usr/share/python3-mscl")
 
@@ -47,11 +48,19 @@ def setup_logging():
     # Make sure logs dir exists
     Path("./logs").mkdir(parents=True, exist_ok=True)
 
-    # Set up file handler with ISO 8601 datetime in filename
-    log_file_path = logging_config["handlers"]["file"].get("filename")
-    log_file_path = log_file_path.replace(
-        "{datetime}", datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    )
+    if args.velocity is not None and args.extension is not None:
+        Path("./logs/lookup_table_logs").mkdir(parents=True, exist_ok=True)
+        log_file_path = logging_config["handlers"]["file"].get("filename")
+        log_file_path = log_file_path.replace(
+            "{filename}", f"lookup_table_logs/vel{args.velocity}ext{args.extension}"
+        )
+    else:
+        # Set up file handler with ISO 8601 datetime in filename
+        log_file_path = logging_config["handlers"]["file"].get("filename")
+        log_file_path = log_file_path.replace(
+            "{filename}", datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        )
+
     logging_config["handlers"]["file"]["filename"] = log_file_path
 
     logging.config.dictConfig(config=logging_config)

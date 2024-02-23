@@ -24,7 +24,7 @@
         "file": {
             "class": "logging.FileHandler",
             "formatter": "csv",
-            "filename": "logs/{datetime}.log",
+            "filename": "logs/{filename}.log",
             "filters": ["airbrakes_data"]
         }
     },
