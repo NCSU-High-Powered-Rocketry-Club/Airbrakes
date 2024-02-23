@@ -72,11 +72,14 @@ class Airbrakes:
             self.ready_to_shutdown = True
             logger.info("Done")
         elif data_point is not None:
-            # Checks that we are trying to make a lookup table and that there is a last data point
+            # Checks that we are trying to make a lookup table
             if self.sim_deploy_vel is not None:
                 dt_seconds: float = (data_point.timestamp - self.last_data_point.timestamp) / 10.0**9
                 self.estimate_velocity(data_point.accel, dt_seconds)
                 logger.info("Data point,%s,%s,%s", data_point.altitude, data_point.accel, self.velocity)
+                # If the airbrakes are in control, it checks if it is the right vel to deploy for the lookup table entry
+                if type(self.state) is state.ControlState and self.velocity <= self.sim_deploy_vel:
+                    self.servo.set_command(self.sim_extension)
             else:
                 # log as csv
                 logger.info("Data point,%s,%s", data_point.altitude, data_point.accel)
@@ -86,6 +89,7 @@ class Airbrakes:
 
     def shutdown(self):
         self.interface.stop_logging_loop()
+        del self.interface
 
     def estimate_velocity(self, a: float, dt: float):
         self.velocity += a * dt
