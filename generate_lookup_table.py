@@ -3,9 +3,10 @@ import csv
 import sys
 import subprocess
 import os
+import time
 
 
-VELOCITY_STEP = 100
+VELOCITY_STEP = 50
 # EXTENSIONS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 EXTENSIONS = [0.0, 0.5, 1.0]
 FILEPATH = "lookup_table.csv"
@@ -25,7 +26,7 @@ def get_newest_log_lines() -> list[str]:
         return file.readlines()
 
 
-def get_log_lines(file_path: str) -> list[str]:
+def get_log_lines(file_path: str = "logs/lookup_table_logs/vel0.0ext0.0.log") -> list[str]:
     with open(file_path, "r") as file:
         return file.readlines()
 
@@ -109,33 +110,48 @@ def read_lookup_table_from_csv(file_path: str) -> list:
 
 
 def main():
-    lookup_table = []
-
     # Runs the sim once to get some starting values
     launch_sim()
-    log_lines = get_newest_log_lines()
+    log_lines = get_log_lines()
     control_state_index = get_control_state_index(log_lines)
     max_velocity = float(log_lines[control_state_index + 1].split(",")[4])
 
     # Makes the skeleton lookup table
     lookup_table = [
-        [float(velocity), [[extension, 0] for extension in EXTENSIONS]]
+        [float(velocity), [[extension, 0.0] for extension in EXTENSIONS]]
         for velocity in range(int(max_velocity), 0, -VELOCITY_STEP)
     ]
 
-    for velocity_entry in lookup_table:
-        velocity = velocity_entry[0]
-        for extension_entry in velocity_entry:
-            extension = extension_entry[0]
-            lines = get_log_lines(f"logs/lookup_table_logs/vel{velocity}ext{extension}.log")
-            change_in_altitude = get_change_in_altitude(lines, velocity)
-            extension_entry[1] = change_in_altitude
+    # Create a thread pool
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Submit tasks to the thread pool
+        futures = []
+        for i in range(len(lookup_table)):
+            velocity = lookup_table[i][0]
+            for j in range(len(lookup_table[i][1])):
+                extension = lookup_table[i][1][j][0]
+                future = executor.submit(launch_sim, velocity, extension)
+                futures.append(future)
 
+    # Wait for all tasks to complete
+    concurrent.futures.wait(futures)
+
+    # Fills up the lookup table
+    for i in range(len(lookup_table)):
+        velocity = lookup_table[i][0]
+        for j in range(len(lookup_table[i][1])):
+            extension = lookup_table[i][1][j][0]
+            lines = get_log_lines(f"logs/lookup_table_logs/vel{velocity}ext{extension}.log")
+            # Only gets the lines after the control state
+            lines = lines[control_state_index + 1:]
+            change_in_altitude = get_change_in_altitude(lines, velocity)
+            lookup_table[i][1][j][1] = change_in_altitude
+
+    print(lookup_table)
 
 
 if __name__ == "__main__":
-    # main()
-    vel = 100.0
-    ext = .5
-    # launch_sim(vel, ext)
-    filepath = f"logs/lookup_table_logs/vel{vel}ext{ext}.log"
+    start_time = time.time()
+    main()
+    end_time = time.time()
+    print(end_time - start_time)
