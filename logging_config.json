@@ -25,6 +25,7 @@
             "class": "logging.FileHandler",
             "formatter": "csv",
             "filename": "logs/{filename}.log",
+            "mode": "w",
             "filters": ["airbrakes_data"]
         }
     },
