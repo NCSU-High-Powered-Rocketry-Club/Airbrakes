@@ -5,7 +5,7 @@ import json
 import logging.config
 from pathlib import Path
 import sys
-import os
+
 
 sys.path.append("/usr/share/python3-mscl")
 
