@@ -120,8 +120,6 @@ def main():
 
     write_lookup_table_to_csv("AirbrakeSystem/lookup_table.csv", lookup_table)
 
-    print(read_lookup_table_from_csv("lookup_table.csv"))
-
 
 if __name__ == "__main__":
     start_time = time.time()
