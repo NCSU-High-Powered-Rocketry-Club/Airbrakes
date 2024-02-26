@@ -11,7 +11,7 @@ if len(sys.argv) < 2:
 
     logs = os.listdir("./logs")
     logs.sort()
-    filename = "./logs/" + logs[-1]
+    filename = "./logs/" + logs[-2]
 else:
     filename = sys.argv[1]
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
+from AirbrakeSystem.estimate_apogee import load_sorted_lookup_table, estimate_change_in_altitude
 import time
 
 if TYPE_CHECKING:
@@ -10,6 +11,7 @@ from .data import ABDataPoint
 from .control import PID
 
 logger = logging.getLogger("airbrakes_data")
+
 
 # The flight consists of 4 sections
 # 1. Standby: While the rocket is on the ground, detects launch
@@ -33,7 +35,6 @@ class StandbyState(AirbrakeState):
     ACCELERATION_REQUIREMENT = 5
 
     def __init__(self, airbrakes: Airbrakes):
-
         airbrakes.servo.set_degrees(airbrakes.SERVO_OFF_ANGLE)
 
         # We create an array to store the last n accelerations
@@ -98,20 +99,26 @@ class ControlState(AirbrakeState):
     alt_readings = [0.0] * 50
     idx = 0
     max_alt_avg = 0
+    change_in_altitude_lookup_table = load_sorted_lookup_table()
 
     pid: PID = PID(0.01, 0.0, 0.0)
 
     def __init__(self, airbrakes: Airbrakes):
+        self.airbrakes = airbrakes
         print(f"deploy time: {airbrakes.interface.last_time / 1e9}")
         airbrakes.servo.set_degrees(airbrakes.SERVO_ON_ANGLE)
         super().__init__(airbrakes)
 
     def process(self, data_point: ABDataPoint):
-        # TODO: predict apogee
-        logger.info("Predicted Apogee,%.3f", 1000.0)
+
+        current_velocity = self.airbrakes.velocity
+        current_extension = self.airbrakes.servo.get_command()
+        estimated_apogee = self.airbrakes.altitude + estimate_change_in_altitude(self.change_in_altitude_lookup_table,
+                                                                                 current_velocity, current_extension)
+        logger.info("Predicted Apogee,%.3f", estimated_apogee)
 
         # TODO: Control the servo based on apogee
-        logger.info("Servo Control,%.3f", 0.43)
+        logger.info("Servo Control,%.3f", current_extension)
 
         # detect apogee and switch to freefall state
         self.alt_readings[self.idx] = data_point.altitude

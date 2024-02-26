@@ -20,7 +20,8 @@ class Airbrakes:
     SERVO_ON_ANGLE = 170.0
 
     velocity = 0
-    position = 0
+    altitude = 0
+
     last_data_point = ABDataPoint(0, 0, 0)
 
     def __init__(self, mock_servo=False, mock_imu=False, sim_deploy_vel=None, sim_extension=None):
@@ -72,19 +73,15 @@ class Airbrakes:
             self.ready_to_shutdown = True
             logger.info("Done")
         elif data_point is not None:
-            # Checks that we are trying to make a lookup table
-            if self.sim_deploy_vel is not None:
-                dt_seconds: float = (data_point.timestamp - self.last_data_point.timestamp) / 10.0**9
-                self.estimate_velocity(data_point.accel, dt_seconds)
-                logger.info("Data point,%s,%s,%s", data_point.altitude, data_point.accel, self.velocity)
-                # If the airbrakes are in control, it checks if it is the right vel to deploy for the lookup table entry
-                if type(self.state) is state.ControlState and self.velocity <= self.sim_deploy_vel:
-                    self.servo.set_command(self.sim_extension)
-            else:
-                # log as csv
-                logger.info("Data point,%s,%s", data_point.altitude, data_point.accel)
+            self.altitude = data_point.altitude
+            dt_seconds: float = (data_point.timestamp - self.last_data_point.timestamp) / 10.0**9
+            self.estimate_velocity(data_point.accel, dt_seconds)
+            logger.info("Data point,%s,%s,%s", data_point.altitude, data_point.accel, self.velocity)
+            # If the airbrakes are in control, and we are making a lookup table, checks if it is the right vel to deploy
+            if (self.sim_deploy_vel is not None and type(self.state) is state.ControlState
+                    and self.velocity <= self.sim_deploy_vel):
+                self.servo.set_command(self.sim_extension)
             self.last_data_point = data_point
-
             self.process_data_point(data_point)
 
     def shutdown(self):

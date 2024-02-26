@@ -9,7 +9,7 @@ def load_sorted_lookup_table() -> list:
     :return: [[vel1, [[ext1, est_change_in_altitude1], [ext2, est_change_in_altitude2]...]], [vel2, ...]]
     """
     read_data = []
-    with open("lookup_table.csv", 'r', newline='') as csvfile:
+    with open("AirbrakeSystem/lookup_table.csv", 'r', newline='') as csvfile:
         reader = csv.reader(csvfile)
         next(reader)  # Skip header row
         for row in reader:
@@ -41,7 +41,10 @@ def linearly_interpolate(lower_x: float, lower_y: float, upper_x: float, upper_y
     Estimates a value between two points via linear interpolation
     :return: the y value corresponding to mid_x
     """
-    slope = (upper_y - lower_y) / (upper_x - lower_x)
+    if upper_x - lower_x == 0:
+        slope = 0
+    else:
+        slope = (upper_y - lower_y) / (upper_x - lower_x)
     return (mid_x - lower_x) * slope + lower_y
 
 
