@@ -116,6 +116,12 @@ trace_average_altitude = go.Scatter(
     name="Average Altitude",
     line=dict(color="orange"),
 )
+trace_target_apogee = go.Scatter(
+    x=df.index, y=[570.0]*len(df.index),  # Replace desired_y_value with the value where you want the horizontal line
+    mode="lines",
+    name="Target Apogee",
+    line=dict(color="black", dash="dash"),  # Adjust color and dash style as needed
+)
 trace_average_altitude.visible = "legendonly"
 
 # Create layout
@@ -134,6 +140,7 @@ fig = go.Figure(
         trace_predicted_apogee,
         trace_servo_control,
         trace_average_altitude,
+        trace_target_apogee
     ],
     layout=layout,
 )

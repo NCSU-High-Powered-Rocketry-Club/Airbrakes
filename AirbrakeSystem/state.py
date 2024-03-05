@@ -100,6 +100,7 @@ class ControlState(AirbrakeState):
     idx = 0
     max_alt_avg = 0
     change_in_altitude_lookup_table = load_sorted_lookup_table()
+    target_apogee = 570.0
 
     pid: PID = PID(0.01, 0.0, 0.0)
 
@@ -110,15 +111,18 @@ class ControlState(AirbrakeState):
         super().__init__(airbrakes)
 
     def process(self, data_point: ABDataPoint):
-
         current_velocity = self.airbrakes.velocity
         current_extension = self.airbrakes.servo.get_command()
         estimated_apogee = self.airbrakes.altitude + estimate_change_in_altitude(self.change_in_altitude_lookup_table,
                                                                                  current_velocity, current_extension)
         logger.info("Predicted Apogee,%.3f", estimated_apogee)
 
-        # TODO: Control the servo based on apogee
+        # TODO: Make this cleaner
+        p_value = 0.008
+        error = self.target_apogee - estimated_apogee
         logger.info("Servo Control,%.3f", current_extension)
+
+        self.airbrakes.servo.set_command(p_value * error)
 
         # detect apogee and switch to freefall state
         self.alt_readings[self.idx] = data_point.altitude
