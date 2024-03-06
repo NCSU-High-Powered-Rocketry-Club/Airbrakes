@@ -2,7 +2,7 @@ import csv
 import math
 
 
-def load_sorted_lookup_table() -> list:
+def load_sorted_pid_lookup_table() -> list:
     """
     Loads the lookup table that was generated with generate_lookup_table.py.
     It is sorted by velocities in ascending order.
@@ -93,3 +93,27 @@ def estimate_change_in_altitude(lookup_table: list, current_velocity: float, cur
         current_velocity
     )
     return interpolated_change_in_altitude
+
+
+def load_bang_bang_lookup_table() -> list:
+    """
+    Loads the lookup table that was generated with generate_lookup_table.py for a bang bang controller.
+    It is sorted by velocities in ascending order.
+    :return: [[vel1, change_in_alt1], [vel2, change_in_alt2]...]
+    """
+    read_data = []
+    with open("AirbrakeSystem/bang_bang_lookup_table.csv", 'r', newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # Skip header row
+        for row in reader:
+            velocity = float(row[0])
+            change_in_altitude = float(row[1])
+            read_data.append([velocity, change_in_altitude])
+        return read_data[::-1]
+
+
+def get_bang_bang_change_in_altitude(lookup_table: list, current_velocity: float) -> float:
+    for i in range(len(lookup_table) - 1):
+        if lookup_table[i][0] < current_velocity < lookup_table[i + 1][0]:
+            return linearly_interpolate(lookup_table[i][0], lookup_table[i][1],
+                                        lookup_table[i + 1][0], lookup_table[i + 1][1], current_velocity)

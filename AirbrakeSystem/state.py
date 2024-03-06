@@ -1,7 +1,7 @@
 from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
-from AirbrakeSystem.estimate_apogee import load_sorted_lookup_table, estimate_change_in_altitude
+from AirbrakeSystem.lookup_table_control import *
 import time
 
 if TYPE_CHECKING:
@@ -99,8 +99,9 @@ class ControlState(AirbrakeState):
     alt_readings = [0.0] * 50
     idx = 0
     max_alt_avg = 0
-    change_in_altitude_lookup_table = load_sorted_lookup_table()
-    target_apogee = 570.0
+    change_in_altitude_lookup_table = load_sorted_pid_lookup_table()
+    bang_bang_lookup_table = load_bang_bang_lookup_table()
+    target_apogee = 590.0
 
     pid: PID = PID(0.01, 0.0, 0.0)
 
@@ -122,7 +123,15 @@ class ControlState(AirbrakeState):
         error = self.target_apogee - estimated_apogee
         logger.info("Servo Control,%.3f", current_extension)
 
-        self.airbrakes.servo.set_command(p_value * error)
+        # self.airbrakes.servo.set_command(p_value * error)
+
+        estimated_change_in_altitude = get_bang_bang_change_in_altitude(self.bang_bang_lookup_table, current_velocity)
+
+        if estimated_change_in_altitude is not None:
+            if get_bang_bang_change_in_altitude(self.bang_bang_lookup_table, current_velocity) + self.airbrakes.altitude <= self.target_apogee:
+                self.airbrakes.servo.set_command(0.0)
+            else:
+                self.airbrakes.servo.set_command(1.0)
 
         # detect apogee and switch to freefall state
         self.alt_readings[self.idx] = data_point.altitude
