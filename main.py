@@ -7,7 +7,6 @@ from pathlib import Path
 import sys
 
 sys.path.append("/usr/share/python3-mscl")
-
 from AirbrakeSystem import Airbrakes
 
 # Uses input arguments to choose between mock and real hardware
@@ -23,7 +22,7 @@ args = parser.parse_args()
 
 
 class CSVFormatter(logging.Formatter):
-    airbrakes: Airbrakes
+    airbrakes: Airbrakes = None
 
     def format(self, record: logging.LogRecord) -> str:
         # Format as `unix millis,message`

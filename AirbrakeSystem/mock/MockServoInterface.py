@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger("airbrakes_data")
+
+
 class Servo:
     _command: float = 0.0  # 0 to 1
 
@@ -12,12 +17,13 @@ class Servo:
         )
 
     def set_command(self, command):
+        command = float(command)
         if command > 1:
             command = 1.0
         if command < 0:
             command = 0.0
 
-        print(f"Set servo command to {command:.3}")
+        logger.info("Servo Control,%.3f", command)
         self._command = command
 
     def get_command(self):
