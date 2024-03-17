@@ -28,7 +28,10 @@ class CSVFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         # Format as `unix millis,message`
         # support string interpolation for the message
-        return f"{self.airbrakes.interface.last_time},{record.getMessage()}"
+        if self.airbrakes is not None:
+            return f"{self.airbrakes.interface.last_time},{record.getMessage()}"
+        else:
+            return ""
 
 
 class AirbrakesDataFilter(logging.Filter):

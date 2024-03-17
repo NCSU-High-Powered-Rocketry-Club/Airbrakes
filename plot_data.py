@@ -39,6 +39,9 @@ def format_name(name):
 
 # Process each line in the log file
 for line in lines:
+    if line.isspace():
+        continue
+
     parts = line.strip().split(",")
     timestamp = int(parts[0])
     data["timestamp"].append(timestamp)
