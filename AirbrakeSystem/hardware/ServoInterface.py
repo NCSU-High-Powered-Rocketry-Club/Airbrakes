@@ -36,7 +36,8 @@ class Servo:
         logger.info("Servo Control,%.3f", command)
         self.command = command
         self.pi_pwm.ChangeDutyCycle(
-            (self.servo_closed_duty)(1.0 - command) + (self.servo_open_duty * command)
+            (self.servo_closed_duty) * (1.0 - command)
+            + (self.servo_open_duty * command)
         )
 
     def get_command(self):
