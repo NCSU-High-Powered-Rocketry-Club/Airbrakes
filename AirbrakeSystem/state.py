@@ -103,11 +103,13 @@ class ControlState(AirbrakeState):
     bang_bang_lookup_table = load_bang_bang_lookup_table()
     target_apogee = 590.0
 
-    pid: PID = PID(0.01, 0.0, 0.0)
+    # We want to make sure the airbrakes are deployed for at least 0.5 seconds
+    hard_coded_deploy_length = 0.5
 
     def __init__(self, airbrakes: Airbrakes):
         self.airbrakes = airbrakes
-        print(f"deploy time: {airbrakes.interface.last_time / 1e9}")
+        self.deploy_time: float = airbrakes.interface.last_time / 1000000000.0
+        print(f"deploy time: {self.deploy_time}")
         airbrakes.servo.set_degrees(airbrakes.SERVO_ON_ANGLE)
         super().__init__(airbrakes)
 
@@ -116,14 +118,9 @@ class ControlState(AirbrakeState):
         current_extension = self.airbrakes.servo.get_command()
         estimated_apogee = self.airbrakes.altitude + estimate_change_in_altitude(self.change_in_altitude_lookup_table,
                                                                                  current_velocity, current_extension)
+
         logger.info("Predicted Apogee,%.3f", estimated_apogee)
-
-        # TODO: Make this cleaner
-        p_value = 0.008
-        error = self.target_apogee - estimated_apogee
         logger.info("Servo Control,%.3f", current_extension)
-
-        # self.airbrakes.servo.set_command(p_value * error)
 
         estimated_change_in_altitude = get_bang_bang_change_in_altitude(self.bang_bang_lookup_table, current_velocity)
 
@@ -132,6 +129,10 @@ class ControlState(AirbrakeState):
                 self.airbrakes.servo.set_command(0.0)
             else:
                 self.airbrakes.servo.set_command(1.0)
+
+        # Deploys the airbrakes regardless for the first .5s
+        if self.airbrakes.interface.last_time / 1000000000.0 - self.deploy_time <= self.hard_coded_deploy_length:
+            self.airbrakes.servo.set_command(1.0)
 
         # detect apogee and switch to freefall state
         self.alt_readings[self.idx] = data_point.altitude
