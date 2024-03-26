@@ -95,13 +95,13 @@ class LiftoffState(AirbrakeState):
 class ControlState(AirbrakeState):
     """Where we actually do the control loop"""
 
-    apogee_check_c = 0
     alt_readings = [0.0] * 50
     idx = 0
-    max_alt_avg = 0
+    max_altitude = 0
     change_in_altitude_lookup_table = load_sorted_pid_lookup_table()
     bang_bang_lookup_table = load_bang_bang_lookup_table()
-    target_apogee = 590.0
+    target_apogee = 700.0
+    last_altitude = 0
 
     # We want to make sure the airbrakes are deployed for at least 0.5 seconds
     hard_coded_deploy_length = 0.5
@@ -134,28 +134,15 @@ class ControlState(AirbrakeState):
         if self.airbrakes.interface.last_time / 1000000000.0 - self.deploy_time <= self.hard_coded_deploy_length:
             self.airbrakes.servo.set_command(1.0)
 
-        # detect apogee and switch to freefall state
-        self.alt_readings[self.idx] = data_point.altitude
-        self.idx = (self.idx + 1) % len(self.alt_readings)
+        # If the altitude is new
+        if self.last_altitude != data_point.altitude:
+            self.last_altitude = data_point.altitude
+            if data_point.altitude >= self.max_altitude:
+                self.max_altitude = data_point.altitude
 
-        alt_avg = sum(self.alt_readings) / len(self.alt_readings)
-
-        logger.info("Average Altitude,%.3f", alt_avg)
-
-        # TODO: Validate on old data
-        if alt_avg > self.max_alt_avg:
-            self.max_alt_avg = alt_avg
-            self.apogee_check_c = 0
-        else:
-            self.apogee_check_c += 1
-
-        if self.apogee_check_c == 10:
-            print(f"apogee: {self.max_alt_avg} m")
-            self.airbrakes.to_state(FreefallState)
-        if alt_avg < self.max_alt_avg:
-            self.max_alt_avg = alt_avg
-            self.apogee_check_c = 0
-            print(f"apogee: {self.max_alt_avg} m")
+        # Checks if we are more than 30 meters below apogee
+        if data_point.altitude <= self.max_altitude - 30:
+            print(f"apogee: {data_point.altitude} m")
             self.airbrakes.to_state(FreefallState)
 
 
