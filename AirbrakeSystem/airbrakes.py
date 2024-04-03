@@ -94,7 +94,9 @@ class Airbrakes:
 
     def estimate_velocity(self, a: float, dt: float):
         self.velocity += a * dt
-        if abs(self.velocity) < 0.0001:
+        print("accel:" + str(a))
+        print("dt:" + str(dt))
+        if abs(self.velocity) < 0.001:
             self.velocity = 0.0
 
     def get_motor_burn_time(self):
