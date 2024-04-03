@@ -86,7 +86,7 @@ class MSCLInterface:
                 if (not have_est) or (not have_raw):
                     break
 
-                # write the acceleration and time data to the data buffer
+                # write the acceleration and time    data to the data buffer
                 # also write all other data to file
                 self._write_data_to_file(packet)
 
