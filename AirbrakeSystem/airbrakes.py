@@ -77,6 +77,7 @@ class Airbrakes:
             dt_seconds: float = (data_point.timestamp - self.last_data_point.timestamp) / 10.0**9
             self.estimate_velocity(data_point.accel, dt_seconds)
             logger.info("Data point,%s,%s,%s", data_point.altitude, data_point.accel, self.velocity)
+            print("timestamp: " + str(data_point.timestamp))
             # If the airbrakes are in control, and we are making a lookup table, checks if it is the right vel to deploy
             if (self.sim_deploy_vel is not None and type(self.state) is state.ControlState
                     and self.velocity <= self.sim_deploy_vel):
