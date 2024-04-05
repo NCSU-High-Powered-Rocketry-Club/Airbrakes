@@ -1,143 +1,154 @@
+import concurrent.futures
+import csv
+import sys
+import subprocess
 import os
-
-import numpy as np
-import orhelper.orhelper as orhelper
-from orhelper.orhelper import FlightDataType, FlightEvent
+import time
 
 
-from AirbrakeSystem.mock.MockMSCLInterface import Airbrakes
+VELOCITY_STEP = 1  # Keep this at 1 for quick look up table indexing
+FILEPATH = "AirbrakeSystem/lookup_table.csv"
+# This will only be used for when we do apogee estimation for PID control
+EXTENSIONS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
 
-class StaticAirbrakes(orhelper.AbstractSimulationListener):
-
-    amount: float
-
-    def __init__(self, amount) -> None:
-        super().__init__()
-        self.amount = amount
-
-    # pylint: disable-next=invalid-name
-    def startSimulation(self, status):
-        # Find the fin set
-        for component in status.getConfiguration().getActiveComponents():
-            if component.getName() == "Airbrakes":
-                print(f"Setting airbrake to {self.amount}")
-                component.setHeight(self.amount * Airbrakes.MAX_HEIGHT)
-                break
+def get_log_lines(file_path: str = "logs/lookup_table_logs/vel0.0ext0.0.log") -> list[str]:
+    with open(file_path, "r") as file:
+        return file.readlines()
 
 
-OR_FILE_NAME = "Purple Nurple_Airbrakes.ork"
-OR_FILE_PATH = os.path.join(
-    os.path.dirname(__file__), "../AirbrakeSystem/mock/", OR_FILE_NAME
-)
-
-print(f"Loading {OR_FILE_PATH}")
-
-
-def run_simulation(airbrakes):
-    orh.run_simulation(sim, listeners=[airbrakes])
-
-    data = orh.get_timeseries(
-        sim,
-        [
-            FlightDataType.TYPE_TIME,
-            FlightDataType.TYPE_ALTITUDE,
-            FlightDataType.TYPE_VELOCITY_Z,
-        ],
-    )
-    events = orh.get_events(sim)
-
-    index_at = lambda t: (np.abs(data[FlightDataType.TYPE_TIME] - t)).argmin()
-
-    burnout_time = 0
-    apogee = 0
-    apogee_time = 0
-    for event, time in events.items():
-        if event == FlightEvent.BURNOUT:
-            burnout_time = time[0]
-            print(f"Burnout time: {burnout_time}")
-        if event == FlightEvent.APOGEE:
-            apogee_time = time
-            apogee = data[FlightDataType.TYPE_ALTITUDE][index_at(apogee_time)]
-
-            print(f"Apogee time: {apogee}")
-
-    # Make a list of (time, velocity, altitude) tuples from burnout to apogee_time
-    # Map the altitude to apogee-altitude
-    # get rid of the time
-    # write to a csv
-    data = map(
-        lambda x: (x[1], apogee - x[2]),
-        filter(
-            lambda x: x[0] > burnout_time and x[0] < apogee_time,
-            zip(
-                data[FlightDataType.TYPE_TIME],
-                data[FlightDataType.TYPE_VELOCITY_Z],
-                data[FlightDataType.TYPE_ALTITUDE],
-            ),
-        ),
-    )
-
-    return data
+def get_control_state_index(lines: list[str]) -> int:
+    for i in range(len(lines)):
+        parts = lines[i].strip().split(",")
+        if parts[2] == "ControlState":
+            return i
 
 
-def round_and_average(tuples):
-    rounded_values = {}
+def get_change_in_altitude(lines: list[str], current_velocity: float) -> float:
+    last_altitude = 0
+    deploy_altitude = None
+    for i in range(0, len(lines)):
+        parts = lines[i].strip().split(",")
+        if parts[1] != "Data point":
+            continue
+        current_altitude = float(parts[2])
+        if deploy_altitude is None and float(parts[4]) <= current_velocity:
+            deploy_altitude = current_altitude
+        # Checks for reaching apogee
+        if current_altitude <= last_altitude:
+            print("apogee " + str(current_altitude))
+            return current_altitude - deploy_altitude
+        last_altitude = current_altitude
 
-    # Round x-values to integers and store corresponding y-values
-    for x, y in tuples:
-        rounded_x = round(x)
-        if rounded_x in rounded_values:
-            rounded_values[rounded_x].append(y)
+
+def launch_sim(deploy_velocity: float = 0, extension_percent: float = 0) -> None:
+    file_path = "main.py"
+    # Arguments to pass to the Python script
+    script_args = ["-si", "-v", str(deploy_velocity), "-e", str(extension_percent)]
+    venv_dir = ".venv"
+    # Activate the virtual environment
+    venv_activate = os.path.join(venv_dir, "Scripts", "activate") if sys.platform == "win32" else os.path.join(venv_dir, "bin", "activate")
+    try:
+        # Run the activate command
+        activate_cmd = f"call {venv_activate}" if sys.platform == "win32" else f"source {venv_activate}"
+        subprocess.run(activate_cmd, shell=True, check=True)
+        # Run the Python script externally with arguments and capture its output
+        process = subprocess.Popen([sys.executable, file_path] + script_args, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE, text=True)
+
+        # Use .communicate() instead of .wait() as it will cause a deadlock
+        process.communicate()
+
+        # Check if the process exited successfully
+        if process.returncode == 0:
+            print(f"Simulation with a velocity {deploy_velocity} and an extension {extension_percent} ran successfully.")
         else:
-            rounded_values[rounded_x] = [y]
+            print("Simulation failed.")
+    except FileNotFoundError:
+        print("File not found or command not found.")
+    except OSError as e:
+        print(f"Error starting the process: {e}")
 
-    # Calculate average y-values for each unique rounded x-value
-    result = [
-        (int(rounded_x), sum(y_values) / len(y_values))
-        for rounded_x, y_values in rounded_values.items()
+
+def write_lookup_table_to_csv(file_path: str, lookup_table: list):
+    with open(file_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Initial Velocity", "Extension Lookup Table"])
+        for row in lookup_table:
+            x_value, y_values = row
+            writer.writerow([x_value, y_values])
+
+
+def generate_pid_lookup_table(max_velocity: float, control_state_index: int):
+    # Makes the skeleton lookup table
+    lookup_table = [
+        [float(velocity), [[extension, 0.0] for extension in EXTENSIONS]]
+        for velocity in range(int(max_velocity), 0, -VELOCITY_STEP)
     ]
 
-    return result
+    # Create a thread pool
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Submit tasks to the thread pool
+        futures = []
+        for i in range(len(lookup_table)):
+            velocity = lookup_table[i][0]
+            for j in range(len(lookup_table[i][1])):
+                extension = lookup_table[i][1][j][0]
+                future = executor.submit(launch_sim, velocity, extension)
+                futures.append(future)
+
+    # Wait for all tasks to complete
+    concurrent.futures.wait(futures)
+
+    # Fills up the lookup table
+    for i in range(len(lookup_table)):
+        velocity = lookup_table[i][0]
+        for j in range(len(lookup_table[i][1])):
+            extension = lookup_table[i][1][j][0]
+            lines = get_log_lines(f"logs/lookup_table_logs/vel{velocity}ext{extension}.log")
+            # Only gets the lines after the control state
+            lines = lines[control_state_index + 1:]
+            change_in_altitude = get_change_in_altitude(lines, velocity)
+            lookup_table[i][1][j][1] = change_in_altitude
+
+    print(lookup_table)
+
+    write_lookup_table_to_csv("AirbrakeSystem/pid_lookup_table.csv", lookup_table)
 
 
-values = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-datas = []
-with orhelper.OpenRocketInstance() as instance:
-    orh = orhelper.Helper(instance)
+def generate_bang_bang_lookup_table(log_lines: list[str], control_state_index: int):
+    control_lines = log_lines[control_state_index + 1:]
+    lookup_table = []
+    for line in control_lines:
+        if line.split(",")[1] != "Data point":
+            continue
+        velocity = float(line.split(",")[4])
+        if velocity > 0:
+            lookup_table.append([velocity, get_change_in_altitude(control_lines, velocity)])
+        else:
+            break
 
-    doc = orh.load_doc(OR_FILE_PATH)
-    print(f"Number of simulations: {doc.getSimulationCount()}")
-    sim = doc.getSimulation(doc.getSimulationCount() - 1)
-    print(f"Simulation name: {sim.getName()}")
+        print(lookup_table)
 
-    # lists of (velocity, delta_h) tuples
-    datas = [round_and_average(run_simulation(StaticAirbrakes(v))) for v in values]
+        write_lookup_table_to_csv("AirbrakeSystem/bang_bang_lookup_table.csv", lookup_table)
 
-import pandas
 
-df = pandas.DataFrame(datas[0], columns=["velocity", "airbrakes_0.0"])
-for i in range(1, len(datas)):
-    df = df.merge(
-        pandas.DataFrame(datas[i], columns=["velocity", f"airbrakes_{values[i]}"]),
-        on="velocity",
-        how="outer",
-    )
+def main():
+    # Runs the sim once to get some starting values
+    launch_sim()
+    log_lines = get_log_lines()
+    control_state_index = get_control_state_index(log_lines)
+    max_velocity = float(log_lines[control_state_index + 1].split(",")[4])
 
-print(df)
-df.to_csv("lookup_table.csv", index=False)
+    # This took my computer about 30 minutes
+    # generate_pid_lookup_table(max_velocity, control_state_index)
 
-import plotly.express as px
+    # This took my computer 5 seconds
+    generate_bang_bang_lookup_table(log_lines, control_state_index)
 
-fig = px.line(
-    df,
-    x="velocity",
-    y=df.columns[1:],
-    labels={
-        "value": "Delta h (m)",
-        "velocity": "Velocity (m/s)",
-    },
-    title="Delta h vs velocity for various airbrakes",
-)
-fig.layout.template = "plotly_dark"
-fig.show()
+
+if __name__ == "__main__":
+    start_time = time.time()
+    main()
+    end_time = time.time()
+    print("lookup table generation took " + str(end_time - start_time) + "seconds")

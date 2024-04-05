@@ -136,5 +136,4 @@ logs/LORDlog.csv
 log
 
 *.log
-*.csv
 *.swp

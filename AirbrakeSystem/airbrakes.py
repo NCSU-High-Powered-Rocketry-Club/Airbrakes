@@ -20,6 +20,10 @@ class Airbrakes:
     SERVO_OPEN_DUTY = 9.2
 
     state = None
+    velocity = 0
+    altitude = 0
+
+    last_data_point = None
 
     def __init__(self, mock_servo=False, mock_imu=False):
 
@@ -69,14 +73,35 @@ class Airbrakes:
             self.ready_to_shutdown = True
             logger.info("Done")
         elif data_point is not None:
-            # log as csv
+            if self.last_data_point is None:
+                self.last_data_point = data_point
+                return
+
+            self.altitude = data_point.altitude
+            dt_seconds: float = (
+                data_point.timestamp - self.last_data_point.timestamp
+            ) / 10.0**9
+            self.estimate_velocity(data_point.accel, dt_seconds)
             logger.info(
                 "Data point,%s,%s,%s",
                 data_point.altitude,
                 data_point.accel,
-                data_point.velocity,
+                self.velocity,
             )
+
+            self.last_data_point = data_point
             self.process_data_point(data_point)
 
     def shutdown(self):
         self.interface.stop_logging_loop()
+        del self.interface
+
+    def estimate_velocity(self, a: float, dt: float):
+        self.velocity += a * dt
+        print("accel:" + str(a))
+        print("dt:" + str(dt))
+        if abs(self.velocity) < 0.001:
+            self.velocity = 0.0
+
+    def get_motor_burn_time(self):
+        return self.MOTOR_BURN_TIME
