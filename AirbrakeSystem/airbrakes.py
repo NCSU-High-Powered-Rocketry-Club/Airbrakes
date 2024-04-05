@@ -26,7 +26,6 @@ class Airbrakes:
     last_data_point = None
 
     def __init__(self, mock_servo=False, mock_imu=False):
-
         self.ready_to_shutdown = False
 
         if mock_servo:
@@ -34,7 +33,7 @@ class Airbrakes:
         else:
             from .hardware import ServoInterface
 
-        self.servo = ServoInterface.Servo(self.SERVO_PIN, 3.5, 11.5)
+        self.servo = ServoInterface.Servo(self.SERVO_PIN, self.SERVO_OPEN_DUTY, self.SERVO_CLOSED_DUTY)
 
         if mock_imu:
             from .mock import MockMSCLInterface
@@ -56,12 +55,13 @@ class Airbrakes:
             )
 
         self.interface.start_logging_loop_thread()
-
+        
         self.to_state(state.StandbyState)
 
     def to_state(self, new_state):
-        if self.state is not None:
-            logger.info("State Change,%s", new_state.__name__)
+        #if self.state is not None:
+        logger.info("State Change,%s", new_state.__name__)
+        print("State Change")
         self.state = new_state(self)
 
     def process_data_point(self, data_point: ABDataPoint):

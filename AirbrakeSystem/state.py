@@ -32,7 +32,7 @@ class StandbyState(AirbrakeState):
 
     AVERAGE_COUNT = 250
     # require an acceleration of 5m/s^2
-    ACCELERATION_REQUIREMENT = 12   #5
+    ACCELERATION_REQUIREMENT = 5
 
     def __init__(self, airbrakes: Airbrakes):
 
