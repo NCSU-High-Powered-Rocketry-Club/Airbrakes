@@ -35,7 +35,8 @@ class StandbyState(AirbrakeState):
     ACCELERATION_REQUIREMENT = 5
 
     def __init__(self, airbrakes: Airbrakes):
-        airbrakes.servo.set_degrees(airbrakes.SERVO_OFF_ANGLE)
+
+        airbrakes.servo.set_command(0)
 
         # We create an array to store the last n accelerations
         # in order to find the moving average.
@@ -92,6 +93,23 @@ class LiftoffState(AirbrakeState):
             airbrakes.to_state(ControlState)
 
 
+LOOKUP_TABLE_PATH = "lookup_table.csv"
+
+# Ideally this wouldn't be called on open, but I don't want to block
+lookup_table = []
+with open(LOOKUP_TABLE_PATH, "r") as lookup_table_f:
+    for line in lookup_table_f.readlines()[1:]:
+        lookup_table.append([float(x) for x in line.strip().split(",")])
+
+
+def get_row(velocity):
+    error = 0.75
+    # return [
+    #     x * error for x in min(lookup_table, key=lambda x: abs(x[0] - velocity))[1:]
+    # ]
+    return 10 * [999.0]
+
+
 class ControlState(AirbrakeState):
     """Where we actually do the control loop"""
 
@@ -103,11 +121,16 @@ class ControlState(AirbrakeState):
     target_apogee = 700.0
     last_altitude = 0
 
+    airbrakes: Airbrakes
+
     # We want to make sure the airbrakes are deployed for at least 0.5 seconds
     hard_coded_deploy_length = 0.5
 
     def __init__(self, airbrakes: Airbrakes):
+        print(f"deploy time: {airbrakes.interface.last_time / 1e9}")
+        logger.info("Target Apogee,%s", ControlState.target_apogee)
         self.airbrakes = airbrakes
+
         self.deploy_time: float = airbrakes.interface.last_time / 1000000000.0
         print(f"deploy time: {self.deploy_time}")
         airbrakes.servo.set_degrees(airbrakes.SERVO_ON_ANGLE)
@@ -116,22 +139,34 @@ class ControlState(AirbrakeState):
     def process(self, data_point: ABDataPoint):
         current_velocity = self.airbrakes.velocity
         current_extension = self.airbrakes.servo.get_command()
-        estimated_apogee = self.airbrakes.altitude + estimate_change_in_altitude(self.change_in_altitude_lookup_table,
-                                                                                 current_velocity, current_extension)
+        estimated_apogee = self.airbrakes.altitude + estimate_change_in_altitude(
+            self.change_in_altitude_lookup_table, current_velocity, current_extension
+        )
 
         logger.info("Predicted Apogee,%.3f", estimated_apogee)
         logger.info("Servo Control,%.3f", current_extension)
 
-        estimated_change_in_altitude = get_bang_bang_change_in_altitude(self.bang_bang_lookup_table, current_velocity)
+        estimated_change_in_altitude = get_bang_bang_change_in_altitude(
+            self.bang_bang_lookup_table, current_velocity
+        )
 
         if estimated_change_in_altitude is not None:
-            if get_bang_bang_change_in_altitude(self.bang_bang_lookup_table, current_velocity) + self.airbrakes.altitude <= self.target_apogee:
+            if (
+                get_bang_bang_change_in_altitude(
+                    self.bang_bang_lookup_table, current_velocity
+                )
+                + self.airbrakes.altitude
+                <= self.target_apogee
+            ):
                 self.airbrakes.servo.set_command(0.0)
             else:
                 self.airbrakes.servo.set_command(1.0)
 
         # Deploys the airbrakes regardless for the first .5s
-        if self.airbrakes.interface.last_time / 1000000000.0 - self.deploy_time <= self.hard_coded_deploy_length:
+        if (
+            self.airbrakes.interface.last_time / 1000000000.0 - self.deploy_time
+            <= self.hard_coded_deploy_length
+        ):
             self.airbrakes.servo.set_command(1.0)
 
         # If the altitude is new
@@ -149,7 +184,7 @@ class ControlState(AirbrakeState):
 class FreefallState(AirbrakeState):
     def __init__(self, airbrakes: Airbrakes):
         print(f"retract time: {airbrakes.interface.last_time / 1e9}")
-        airbrakes.servo.set_degrees(airbrakes.SERVO_OFF_ANGLE)
+        airbrakes.servo.set_command(0)
 
     def process(self, data_point: ABDataPoint):
         pass

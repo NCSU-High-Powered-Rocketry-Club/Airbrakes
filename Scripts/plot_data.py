@@ -1,3 +1,7 @@
+"""
+Run as `python -m Scripts.plot_data <log_file_path (optional)>`
+"""
+
 import sys
 import pandas as pd
 import plotly.graph_objects as go
@@ -11,7 +15,7 @@ if len(sys.argv) < 2:
 
     logs = os.listdir("./logs")
     logs.sort()
-    filename = "./logs/" + logs[-2]
+    filename = "./logs/" + logs[-1]
 else:
     filename = sys.argv[1]
 
@@ -27,6 +31,8 @@ data = {
     "acceleration": [],
     "velocity": [],
     "predicted_apogee": [],
+    "predicted_apogee0": [],
+    "predicted_apogee1": [],
     "servo_control": [],
     "average_altitude": [],
 }
@@ -40,6 +46,9 @@ def format_name(name):
 
 # Process each line in the log file
 for line in lines:
+    if line.isspace():
+        continue
+
     parts = line.strip().split(",")
     timestamp = int(parts[0])
     data["timestamp"].append(timestamp)
@@ -48,8 +57,9 @@ for line in lines:
     if event_type == "Data point":
         data["altitude"].append(float(parts[2]))
         data["acceleration"].append(float(parts[3]))
-        if len(parts) > 4:
-            data["velocity"].append(float(parts[4]))
+        data["velocity"].append(float(parts[4]))
+    elif event_type == "Target Apogee":
+        target_apogee = float(parts[2])
     elif event_type == "State Change":
         data["timestamp"].pop()
         # remove the 'State' suffix
@@ -88,18 +98,25 @@ trace_accel = go.Scatter(
     name="Acceleration",
     line=dict(color="red"),
 )
-trace_vel = go.Scatter(
-    x=df.index,
-    y=df["velocity"],
-    mode="lines",
-    name="Velocity",
-    line=dict(color="yellow"),
-)
 trace_predicted_apogee = go.Scatter(
     x=df.index,
     y=df["predicted_apogee"],
     mode="lines",
     name="Predicted Apogee",
+    line=dict(color="green"),
+)
+trace_predicted_apogee0 = go.Scatter(
+    x=df.index,
+    y=df["predicted_apogee0"],
+    mode="lines",
+    name="Predicted Apogee0",
+    line=dict(color="green"),
+)
+trace_predicted_apogee1 = go.Scatter(
+    x=df.index,
+    y=df["predicted_apogee1"],
+    mode="lines",
+    name="Predicted Apogee1",
     line=dict(color="green"),
 )
 trace_servo_control = go.Scatter(
@@ -115,14 +132,8 @@ trace_average_altitude = go.Scatter(
     mode="lines",
     name="Average Altitude",
     line=dict(color="orange"),
+    visible="legendonly",
 )
-trace_target_apogee = go.Scatter(
-    x=df.index, y=[700]*len(df.index),  # Replace desired_y_value with the value where you want the horizontal line
-    mode="lines",
-    name="Target Apogee",
-    line=dict(color="black", dash="dash"),  # Adjust color and dash style as needed
-)
-trace_average_altitude.visible = "legendonly"
 
 # Create layout
 layout = go.Layout(
@@ -136,13 +147,20 @@ fig = go.Figure(
     data=[
         trace_altitude,
         trace_accel,
-        trace_vel,
         trace_predicted_apogee,
+        trace_predicted_apogee0,
+        trace_predicted_apogee1,
         trace_servo_control,
         trace_average_altitude,
-        trace_target_apogee
     ],
     layout=layout,
+)
+
+fig.add_hline(
+    y=target_apogee,
+    line_dash="dot",
+    line_color="green",
+    annotation_text="Target Apogee",
 )
 
 # annotate the state changes on the altitude plot

@@ -125,6 +125,7 @@ class MSCLInterface:
 
             # get the channel dat
             # TODO: Update the pi to 3.10 so we can use a match statement
+            # TODO: Get velocity
             channel = data_point.channelName()
 
             if channel == "estLinearAccelX":

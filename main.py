@@ -8,7 +8,6 @@ import sys
 
 
 sys.path.append("/usr/share/python3-mscl")
-
 from AirbrakeSystem import Airbrakes
 
 # Uses input arguments to choose between mock and real hardware
@@ -17,22 +16,22 @@ from AirbrakeSystem import Airbrakes
 parser = argparse.ArgumentParser(
     description="Main program that controls the flight of the rocket through airbrake systems"
 )
-
 parser.add_argument("-s", "--mock_servo", action="store_true", help="Use mock servo")
 parser.add_argument("-i", "--mock_imu", action="store_true", help="Use mock IMU")
-parser.add_argument("-v", "--velocity", type=float, help="Vel to deploy airbrakes at")
-parser.add_argument("-e", "--extension", type=float, help="Extension of airbrakes")
 
 args = parser.parse_args()
 
 
 class CSVFormatter(logging.Formatter):
-    airbrakes: Airbrakes
+    airbrakes: Airbrakes = None
 
     def format(self, record: logging.LogRecord) -> str:
         # Format as `unix millis,message`
         # support string interpolation for the message
-        return f"{self.airbrakes.interface.last_time},{record.getMessage()}"
+        if self.airbrakes is not None:
+            return f"{self.airbrakes.interface.last_time},{record.getMessage()}"
+        else:
+            return ""
 
 
 class AirbrakesDataFilter(logging.Filter):
@@ -69,10 +68,7 @@ def setup_logging():
 def main(args):
     setup_logging()
 
-    if args.mock_servo and args.mock_imu:
-        airbrakes = Airbrakes(True, True, args.velocity, args.extension)
-    else:
-        airbrakes = Airbrakes(args.mock_servo, args.mock_imu)
+    airbrakes = Airbrakes(args.mock_servo, args.mock_imu)
 
     # inject the airbrakes object into the CSVFormatter
     # so that we can have accurate time in sim

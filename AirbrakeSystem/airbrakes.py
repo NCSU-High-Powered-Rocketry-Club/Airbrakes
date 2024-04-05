@@ -16,17 +16,16 @@ class Airbrakes:
     SERVO_PIN = 32
 
     # these angles represent open and closed for the airbrakes, they are arbitrary
-    SERVO_OFF_ANGLE = 40.0
-    SERVO_ON_ANGLE = 170.0
+    SERVO_CLOSED_DUTY = 6.3
+    SERVO_OPEN_DUTY = 9.2
 
+    state = None
     velocity = 0
     altitude = 0
 
     last_data_point = None
 
-    def __init__(self, mock_servo=False, mock_imu=False, sim_deploy_vel=None, sim_extension=None):
-        self.sim_deploy_vel = sim_deploy_vel
-        self.sim_extension = sim_extension
+    def __init__(self, mock_servo=False, mock_imu=False):
 
         self.ready_to_shutdown = False
 
@@ -61,7 +60,8 @@ class Airbrakes:
         self.to_state(state.StandbyState)
 
     def to_state(self, new_state):
-        logger.info("State Change,%s", new_state.__name__)
+        if self.state is not None:
+            logger.info("State Change,%s", new_state.__name__)
         self.state = new_state(self)
 
     def process_data_point(self, data_point: ABDataPoint):
@@ -78,13 +78,17 @@ class Airbrakes:
                 return
 
             self.altitude = data_point.altitude
-            dt_seconds: float = (data_point.timestamp - self.last_data_point.timestamp) / 10.0**9
+            dt_seconds: float = (
+                data_point.timestamp - self.last_data_point.timestamp
+            ) / 10.0**9
             self.estimate_velocity(data_point.accel, dt_seconds)
-            logger.info("Data point,%s,%s,%s", data_point.altitude, data_point.accel, self.velocity)
-            # If the airbrakes are in control, and we are making a lookup table, checks if it is the right vel to deploy
-            if (self.sim_deploy_vel is not None and type(self.state) is state.ControlState
-                    and self.velocity <= self.sim_deploy_vel):
-                self.servo.set_command(self.sim_extension)
+            logger.info(
+                "Data point,%s,%s,%s",
+                data_point.altitude,
+                data_point.accel,
+                self.velocity,
+            )
+
             self.last_data_point = data_point
             self.process_data_point(data_point)
 
