@@ -32,7 +32,7 @@ class StandbyState(AirbrakeState):
 
     AVERAGE_COUNT = 250
     # require an acceleration of 5m/s^2
-    ACCELERATION_REQUIREMENT = 5
+    ACCELERATION_REQUIREMENT = 12   #5
 
     def __init__(self, airbrakes: Airbrakes):
 
@@ -131,7 +131,7 @@ class ControlState(AirbrakeState):
         logger.info("Target Apogee,%s", ControlState.target_apogee)
         self.airbrakes = airbrakes
 
-        self.deploy_time: float = airbrakes.interface.last_time / 1000000000.0
+        self.deploy_time: float = airbrakes.interface.last_time / 1.0e9
         print(f"deploy time: {self.deploy_time}")
         airbrakes.servo.set_degrees(airbrakes.SERVO_ON_ANGLE)
         super().__init__(airbrakes)
@@ -158,16 +158,21 @@ class ControlState(AirbrakeState):
                 + self.airbrakes.altitude
                 <= self.target_apogee
             ):
-                self.airbrakes.servo.set_command(0.0)
+                # Deploys the airbrakes regardless for the first .5s
+                if (self.airbrakes.interface.last_time / 1.0e9 - self.deploy_time
+            <= self.hard_coded_deploy_length ):
+                    self.airbrakes.servo.set_command(1.0)
+                else:
+                    self.airbrakes.servo.set_command(0.0)
             else:
                 self.airbrakes.servo.set_command(1.0)
 
         # Deploys the airbrakes regardless for the first .5s
-        if (
-            self.airbrakes.interface.last_time / 1000000000.0 - self.deploy_time
-            <= self.hard_coded_deploy_length
-        ):
-            self.airbrakes.servo.set_command(1.0)
+        #if (
+        #    self.airbrakes.interface.last_time / 1000000000.0 - self.deploy_time
+        #    <= self.hard_coded_deploy_length
+        #):
+        #    self.airbrakes.servo.set_command(1.0)
 
         # If the altitude is new
         if self.last_altitude != data_point.altitude:

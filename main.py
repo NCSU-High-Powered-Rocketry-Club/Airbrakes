@@ -47,7 +47,7 @@ def setup_logging():
     # Make sure logs dir exists
     Path("./logs").mkdir(parents=True, exist_ok=True)
 
-    if args.velocity is not None and args.extension is not None:
+    if (1==0): #args.velocity is not None and args.extension is not None:
         Path("./logs/lookup_table_logs").mkdir(parents=True, exist_ok=True)
         log_file_path = logging_config["handlers"]["file"].get("filename")
         log_file_path = log_file_path.replace(

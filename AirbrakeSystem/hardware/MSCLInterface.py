@@ -47,7 +47,7 @@ class MSCLInterface:
         Using the threading package to create a logging loop on a separate
         thread.
         """
-        self.logging_thread = Process(target=self.start_logging_loop))
+        self.logging_thread = Process(target=self.start_logging_loop)
         self.logging_thread.start()
 
     def start_logging_loop(self):
