@@ -109,7 +109,7 @@ class MSCLInterface:
             self.last_time = ret.timestamp
             return ret
         except IndexError:
-            print("Error popping data point!")
+            #print("Error popping data point!")
             return None
 
     def _write_data_to_file(self, packet: mscl.MipDataPacket):
@@ -151,7 +151,7 @@ class MSCLInterface:
                 #self.child_pipe.send(data_object)
                 self.databuffer.append(data_object)
 
-                while len(self.databuffer) > 1:
+                while len(self.databuffer) > 2:
                     self.databuffer.popleft()
 
             logfile.write(str(data_point.as_float()) + ",")
