@@ -34,7 +34,7 @@ class Airbrakes:
         else:
             from .hardware import ServoInterface
 
-        self.servo = ServoInterface.Servo(self.SERVO_PIN, self.SERVO_OPEN_DUTY, self.SERVO_CLOSED_DUTY)
+        self.servo = ServoInterface.Servo(self.SERVO_PIN, self.SERVO_CLOSED_DUTY, self.SERVO_OPEN_DUTY)
 
         if mock_imu:
             from .mock import MockMSCLInterface
