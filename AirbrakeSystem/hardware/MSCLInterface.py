@@ -102,12 +102,14 @@ class MSCLInterface:
 
     def pop_data_point(self) -> ABDataPoint | None:
         """Pops a data point off of the databuffer pipe"""
+        """SIKE! just reads the data point"""
         try:
             # TODO: This should always return a data point with all felids filled
-            ret: ABDataPoint = self.parent_pipe.recv()
+            ret: ABDataPoint = self.databuffer[-1]  #.popleft() #self.parent_pipe.recv()
             self.last_time = ret.timestamp
             return ret
         except IndexError:
+            print("Error popping data point!")
             return None
 
     def _write_data_to_file(self, packet: mscl.MipDataPacket):
@@ -145,8 +147,12 @@ class MSCLInterface:
             # if the data object is not empty
             if contains_data:
                 # send the processed data to the databuffer
+                # update data buffer, !!!use buffer as read-only
                 #self.child_pipe.send(data_object)
                 self.databuffer.append(data_object)
+
+                while len(self.databuffer) > 1:
+                    self.databuffer.popleft()
 
             logfile.write(str(data_point.as_float()) + ",")
         logfile.write("\n")
