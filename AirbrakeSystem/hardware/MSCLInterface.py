@@ -116,7 +116,7 @@ class MSCLInterface:
         data_object: ABDataPoint = ABDataPoint(0.0, 0, 0.0, 0.0)
         # data_object.altitude = None
 
-        data_object.timestamp = packet.collectedTimestamp().nanoseconds()
+        data_object.timestamp = packet.collectedTimestamp().milliseconds()  #nanoseconds()
 
         isEst = packet.data()[0].channelName()[:3] == "est"
 

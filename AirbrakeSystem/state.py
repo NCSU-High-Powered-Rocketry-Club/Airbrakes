@@ -88,7 +88,7 @@ class LiftoffState(AirbrakeState):
         current_time = data_point.timestamp
 
         # print(f"time to go {MOTOR_BURN_TIME - (current_time - self.start_time)}")
-        if current_time - self.start_time > (airbrakes.MOTOR_BURN_TIME * 1e9):
+        if current_time - self.start_time > (airbrakes.MOTOR_BURN_TIME * 1e3):
             # state_machine.to_state(TestState)
             airbrakes.to_state(ControlState)
 
@@ -125,7 +125,7 @@ class ControlState(AirbrakeState):
         current_time = data_point.timestamp
 
         # print(f"time to go {MOTOR_BURN_TIME - (current_time - self.start_time)}")
-        if current_time - self.start_time > (airbrakes.COAST_DEPLOY_TIME * 1e9):
+        if current_time - self.start_time > (airbrakes.COAST_DEPLOY_TIME * 1e3):
             # state_machine.to_state(TestState)
             airbrakes.to_state(FreefallState)
 
@@ -148,11 +148,11 @@ class ControlState(AirbrakeState):
     hard_coded_deploy_length = 0.5
 
     def __init__(self, airbrakes: Airbrakes):
-        print(f"deploy time: {airbrakes.interface.last_time / 1e9}")
+        print(f"deploy time: {airbrakes.interface.last_time / 1e3}")
         logger.info("Target Apogee,%s", ControlState.target_apogee)
         self.airbrakes = airbrakes
 
-        self.deploy_time: float = airbrakes.interface.last_time / 1.0e9
+        self.deploy_time: float = airbrakes.interface.last_time / 1.0e3
         print(f"deploy time: {self.deploy_time}")
         airbrakes.servo.set_degrees(airbrakes.SERVO_ON_ANGLE)
         super().__init__(airbrakes)
@@ -180,7 +180,7 @@ class ControlState(AirbrakeState):
                 <= self.target_apogee
             ):
                 # Deploys the airbrakes regardless for the first .5s
-                if (self.airbrakes.interface.last_time / 1.0e9 - self.deploy_time
+                if (self.airbrakes.interface.last_time / 1.0e3 - self.deploy_time
             <= self.hard_coded_deploy_length ):
                     self.airbrakes.servo.set_command(1.0)
                 else:
@@ -190,7 +190,7 @@ class ControlState(AirbrakeState):
 
         # Deploys the airbrakes regardless for the first .5s
         #if (
-        #    self.airbrakes.interface.last_time / 1000000000.0 - self.deploy_time
+        #    self.airbrakes.interface.last_time / 1.0e3 - self.deploy_time
         #    <= self.hard_coded_deploy_length
         #):
         #    self.airbrakes.servo.set_command(1.0)
@@ -210,7 +210,7 @@ class ControlState(AirbrakeState):
 
 class FreefallState(AirbrakeState):
     def __init__(self, airbrakes: Airbrakes):
-        print(f"retract time: {airbrakes.interface.last_time / 1e9}")
+        print(f"retract time: {airbrakes.interface.last_time / 1e3}")
         airbrakes.servo.set_command(0)
 
     def process(self, data_point: ABDataPoint):
