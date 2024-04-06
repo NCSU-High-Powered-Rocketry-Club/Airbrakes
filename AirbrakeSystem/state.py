@@ -111,6 +111,27 @@ def get_row(velocity):
 
 
 class ControlState(AirbrakeState):
+    """
+    Instead of Control, just deplopy airbrakes for x amount of time
+    """
+
+    def __init__(self, airbrakes: Airbrakes):
+        self.start_time = airbrakes.interface.last_time
+        airbrakes.servo.set_command(1)
+        super().__init__(airbrakes)
+
+    def process(self, data_point: ABDataPoint):
+        airbrakes = self.airbrakes
+        current_time = data_point.timestamp
+
+        # print(f"time to go {MOTOR_BURN_TIME - (current_time - self.start_time)}")
+        if current_time - self.start_time > (airbrakes.COAST_DEPLOY_TIME * 1e9):
+            # state_machine.to_state(TestState)
+            airbrakes.to_state(ControlState)
+
+
+
+    '''
     """Where we actually do the control loop"""
 
     alt_readings = [0.0] * 50
@@ -184,6 +205,7 @@ class ControlState(AirbrakeState):
         if data_point.altitude <= self.max_altitude - 30:
             print(f"apogee: {data_point.altitude} m")
             self.airbrakes.to_state(FreefallState)
+            '''
 
 
 class FreefallState(AirbrakeState):

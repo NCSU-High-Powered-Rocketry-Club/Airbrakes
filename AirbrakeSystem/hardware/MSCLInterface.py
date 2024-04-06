@@ -6,7 +6,7 @@ from collections import deque
 from ..data import ABDataPoint
 import mscl
 
-from multiprocessing import Process, Pipe, Value
+#from multiprocessing import Process, Pipe, Value
 
 # TOOD (Before every launch): Make sure this value is correct
 UPSIDE_DOWN = True
@@ -27,8 +27,10 @@ class MSCLInterface:
         self.raw_data_logfile = raw_data_logfile
         self.est_data_logfile = est_data_logfile
 
-        self.parent_pipe, self.child_pipe = Pipe()
-        self.running = Value("b", False)
+        #self.parent_pipe, self.child_pipe = Pipe()
+        #self.running = Value("b", False)
+        self.databuffer = deque()
+        self.running = False
 
         # rate in which we poll date  in miliseconds (1/(Hz)*1000)
         self.polling_rate = int(1 / (100) * 1000)
@@ -37,7 +39,7 @@ class MSCLInterface:
 
     def stop_logging_loop(self):
         """Stops the logging loop."""
-        self.running.value = False
+        self.running = False
         self.logging_thread.join()
         self.raw_data_logfile.close()
         self.est_data_logfile.close()
@@ -47,7 +49,8 @@ class MSCLInterface:
         Using the threading package to create a logging loop on a separate
         thread.
         """
-        self.logging_thread = Process(target=self.start_logging_loop)
+        #self.logging_thread = Process(target=self.start_logging_loop)
+        self.logging_thread = threading.Thread(target=self.start_logging_loop)
         self.logging_thread.start()
 
     def start_logging_loop(self):
@@ -57,12 +60,12 @@ class MSCLInterface:
         logfile. All the accelerating and time data is saved to the data
         buffer.
         """
-        self.running.value = True
+        self.running = True
         counter = 0
 
         have_raw = False
         have_est = False
-        while self.running.value:
+        while self.running:
             # get all the data packets from the node with a timeout of the
             # polling rate in milliseconds
             packets: mscl.MipDataPackets = self.node.getDataPackets(self.polling_rate)
@@ -142,7 +145,8 @@ class MSCLInterface:
             # if the data object is not empty
             if contains_data:
                 # send the processed data to the databuffer
-                self.child_pipe.send(data_object)
+                #self.child_pipe.send(data_object)
+                self.databuffer.append(data_object)
 
             logfile.write(str(data_point.as_float()) + ",")
         logfile.write("\n")

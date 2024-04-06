@@ -10,7 +10,8 @@ logger = logging.getLogger("airbrakes_data")
 
 class Airbrakes:
 
-    MOTOR_BURN_TIME = 1.7  # Time from liftoff detected to control start
+    MOTOR_BURN_TIME = 1.5  # Time from liftoff detected to control start
+    COAST_DEPLOY_TIME = 11  # Time to deploy airbrakes during ascent
 
     # this is the pin that the servo's data wire is plugged into
     SERVO_PIN = 32
@@ -61,7 +62,7 @@ class Airbrakes:
     def to_state(self, new_state):
         #if self.state is not None:
         logger.info("State Change,%s", new_state.__name__)
-        print("State Change")
+        #print("State Change")
         self.state = new_state(self)
 
     def process_data_point(self, data_point: ABDataPoint):
@@ -80,14 +81,8 @@ class Airbrakes:
             self.altitude = data_point.altitude
             dt_seconds: float = (
                 data_point.timestamp - self.last_data_point.timestamp
-            ) / 10.0**9
+            ) / 1e9
             self.estimate_velocity(data_point.accel, dt_seconds)
-            logger.info(
-                "Data point,%s,%s,%s",
-                data_point.altitude,
-                data_point.accel,
-                self.velocity,
-            )
 
             self.last_data_point = data_point
             self.process_data_point(data_point)
@@ -98,8 +93,8 @@ class Airbrakes:
 
     def estimate_velocity(self, a: float, dt: float):
         self.velocity += a * dt
-        print("accel:" + str(a))
-        print("dt:" + str(dt))
+        #print("accel:" + str(a))
+        #print("dt:" + str(dt))
         if abs(self.velocity) < 0.001:
             self.velocity = 0.0
 
