@@ -127,7 +127,7 @@ class ControlState(AirbrakeState):
         # print(f"time to go {MOTOR_BURN_TIME - (current_time - self.start_time)}")
         if current_time - self.start_time > (airbrakes.COAST_DEPLOY_TIME * 1e9):
             # state_machine.to_state(TestState)
-            airbrakes.to_state(ControlState)
+            airbrakes.to_state(FreefallState)
 
 
 
