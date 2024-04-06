@@ -81,7 +81,7 @@ class Airbrakes:
             self.altitude = data_point.altitude
             dt_seconds: float = (
                 data_point.timestamp - self.last_data_point.timestamp
-            ) / 1e3
+            ) / 1e9
             self.estimate_velocity(data_point.accel, dt_seconds)
 
             self.last_data_point = data_point
