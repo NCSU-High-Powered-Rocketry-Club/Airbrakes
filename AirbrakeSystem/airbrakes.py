@@ -10,7 +10,7 @@ logger = logging.getLogger("airbrakes_data")
 
 class Airbrakes:
 
-    MOTOR_BURN_TIME = 1.5  # Time from liftoff detected to control start
+    MOTOR_BURN_TIME = 1.4  # Time from liftoff detected to control start
     COAST_DEPLOY_TIME = 11  # Time to deploy airbrakes during ascent
 
     # this is the pin that the servo's data wire is plugged into
